@@ -1,0 +1,26 @@
+import re
+
+def validator(f, etype=ValueError):
+	def _validate(*args, **params):
+		try:
+			return f(*args, **params)
+		except AssertionError, e:
+			raise etype(*e.args)
+	return _validate
+
+_nstag = re.compile('(\{http://[^}]+\}){0,1}([a-zA-Z0-9_]+)')
+
+def parse_tag(t):
+	return _nstag.match(t).groups()
+
+_handlers = {}
+
+def handle(url):
+	def _handle(f):
+		_handlers[url] = f
+		return f
+	return _handle
+
+def get_handler(url, default):
+	return _handlers.get(url, default)
+

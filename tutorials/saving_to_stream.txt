@@ -1,0 +1,22 @@
+In [1]: from openpack.zippack import ZipPackage
+
+In [2]: zp = ZipPackage('foo.docx')
+
+In [3]: from cStringIO import StringIO
+
+In [4]: f = StringIO()
+
+In [5]: zp.save(f)
+
+In [6]: from zipfile import ZipFile
+
+In [7]: zf = ZipFile(f)
+
+In [8]: zf.filename = zp.name
+
+In [9]: zf.namelist()
+Out[9]: ['[Content_Types].xml', '_rels/.rels']
+
+In [10]: zf.read('[Content_Types].xml')
+Out[10]: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n\n</Types>\n'
+
