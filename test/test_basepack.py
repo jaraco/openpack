@@ -1,6 +1,6 @@
 import py.test
 
-import common
+from common import SamplePart
 from openpack.basepack import *
 
 class TestBasicPart(object):
@@ -48,4 +48,15 @@ class TestBasicPackage(object):
 	
 	def test_related(self):
 		assert self.pack.related('http://polimetrix.com/part')[0] == self.part
+
+	def test_add_no_override(self):
+		p = SamplePart(self.pack, '/pmx/samp.vpart')
+		self.pack.add(p, override=False)
+		assert 'vpart' in self.pack.content_types.defaults
+		
+	def test_add_no_override(self):
+		p = SamplePart(self.pack, '/pmx/samp.main')
+		p.content_type = "app/pmxmain+xml"
+		self.pack.add(p)
+		assert '/pmx/samp.main' in self.pack.content_types.overrides
 

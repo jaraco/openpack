@@ -6,14 +6,11 @@ import os
 
 import py.test
 
-import common
+from common import SamplePart
 from openpack.basepack import *
 from openpack.zippack import ZipPackage
 
 TESTFILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'temp.zipx')
-class SamplePart(Part):
-	content_type = "text/pmxtest+xml"
-	rel_type = "http://polimetrix.com/relationships/test"
 
 class TestZipPack(object):
 	def test_create(self):

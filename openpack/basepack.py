@@ -97,6 +97,20 @@ class Package(DictMixin, Relational):
 	def keys(self):
 		return self.parts.keys()
 
+	def add(self, part, override=True):
+		"""Add a part to the package.
+
+		It will also add a content-type - by default an override.  If
+		override is False then it will add a content-type for the extension
+		if on isn't already present.
+		"""
+		self[part.name] = part
+		if override:
+			self.content_types.add_override(part)
+		else:
+			ext = part.name.rsplit('.', 1)[1]
+			self.content_types.add(DefaultType(part.content_type, ext))
+
 	@validator
 	def _validate_part(self, name, part):
 		# 8.1.1.1 -   A package implementer shall neither create nor 
