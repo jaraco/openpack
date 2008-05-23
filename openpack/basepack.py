@@ -3,27 +3,21 @@
 
 import os
 from cStringIO import StringIO
-from xml.etree.ElementTree import (
-		Element, ElementTree, fromstring, tostring, 
-		_namespace_map as namespace_map
-)
+from lxml.etree import Element, ElementTree, fromstring, tostring 
 from string import Template
 from UserDict import DictMixin
 
 from util import validator, parse_tag, handle
 
 ooxml_namespaces = {
-	'http://schemas.openxmlformats.org/package/2006/metadata/core-properties':'cp',
-	'http://purl.org/dc/elements/1.1/':'dc',
-	'http://purl.org/dc/terms/':'dcterms',
-	'http://purl.org/dc/dcmitype/':'dcmitype',
-	'http://www.w3.org/2001/XMLSchema-instance':'xsi',
+	'cp':'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
+	'dc':'http://purl.org/dc/elements/1.1/',
+	'dcterms':'http://purl.org/dc/terms/',
+	'dcmitype':'http://purl.org/dc/dcmitype/',
+	'xsi':'http://www.w3.org/2001/XMLSchema-instance',
+	'v':"urn:schemas-microsoft-com:vml",
+	'w':"http://schemas.openxmlformats.org/wordprocessingml/2006/main",
 }
-
-# map common namespaces to their prefixes for ElementTree
-namespace_map.update(ooxml_namespaces)
-
-TEMPLATES = os.path.join(os.path.dirname(__file__), 'templates')
 
 class Relational(object):
 	"A mixin class for packages and parts; both support relationships."
@@ -170,11 +164,7 @@ class Package(DictMixin, Relational):
 	@handle('http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties')
 	def _load_core_props(self, name, fp):
 		self.core_properties = cp = CoreProperties(self, name)
-		elem = fromstring(fp.read())
-		for prop in elem.getchildren():
-			ns, pname = parse_tag(prop.tag)
-			self.core_properties._props[pname] = prop
-			setattr(self.core_properties, pname, prop.text or None)
+		cp.element = fromstring(fp.read())
 		self[cp.name] = cp
 
 	def map_name(self, name):
@@ -278,6 +268,7 @@ class Relationship(object):
 
 class Relationships(Part):
 	"""A collection of Package or Part Relationships."""
+	xmlns = "{http://schemas.openxmlformats.org/package/2006/relationships}"
 	content_type = "application/vnd.openxmlformats-package.relationships+xml"
 	rel_type = None
 
@@ -300,19 +291,16 @@ class Relationships(Part):
 	def dump(self):
 		if not self.children:
 			return ''
-		tfile = open(os.path.join(TEMPLATES,'rels.xml.tmpl'))
-		tmpl = Template(tfile.read().decode('utf-8'))
-		elems = []
+		rels = Element(self.xmlns + 'Relationships', nsmap={None:self.xmlns.strip('{}')})
 		for rel in self:
-			elems.append(Element(
+			rels.append(Element(
 				'Relationship',
 				TargetMode=rel.mode,
 				Target=rel.target,
 				Type=rel.type,
 				Id=rel.id,
 			))
-		rels = "\n".join(tostring(elem, self.encoding) for elem in elems)
-		return tmpl.substitute({'relationships':rels}).encode(self.encoding)
+		return tostring(rels, encoding=self.encoding)
 
 	def __iter__(self):
 		return iter(self.children)
@@ -340,6 +328,8 @@ class Relationships(Part):
 
 class ContentTypes(object):
 	"""A container for managing Package content types."""
+	
+	xmlns = '{http://schemas.openxmlformats.org/package/2006/content-types}'
 	def __init__(self, encoding=None):
 		self.children = []
 		self.defaults = {}
@@ -359,12 +349,10 @@ class ContentTypes(object):
 		self.children.append(ct)
    
 	def dump(self):
-		ct_file = open(os.path.join(TEMPLATES, '[Content_Types].xml.tmpl'))
-		tmpl = Template(ct_file.read().decode('utf-8'))
-		elems = []
+		types = Element(self.xmlns + 'Types', nsmap={None:self.xmlns.strip('{}')})
 		for ct in self.children:
-			elems.append(ct.dump())
-		return tmpl.substitute({'types':"\n".join(elems)}).encode(self.encoding)
+			types.append(ct.to_element())
+		return tostring(types, encoding=self.encoding)
 		
 	@validator
 	def _validate_default(self, ct):
@@ -382,9 +370,13 @@ class DefaultType(object):
 		self.content_type = content_type
 		self.extension = extension
 
-	def dump(self):
-		elem = '<Default Extension="%s" ContentType="%s" />'
-		return elem % (self.extension, self.content_type)
+	def to_element(self):
+		elem = Element(
+			'Default',
+			Extension=self.extension,
+			ContentType=self.content_type,
+		)
+		return elem
 
 	def __repr__(self):
 		return "DefaultType(%r, %r)" % (self.content_type, self.extension)
@@ -395,52 +387,28 @@ class OverrideType(object):
 		self.content_type = content_type
 		self.part_name = part_name
 
-	def dump(self):
-		elem = '<Override PartName="%s" ContentType="%s" />'
-		return elem % (self.part_name, self.content_type)
+	def to_element(self):
+		elem = Element(
+			'Override',
+			PartName=self.part_name,
+			ContentType=self.content_type,
+		)
+		return elem
 
 	def __repr__(self):
 		return "OverrideType(%r, %r)" % (self.content_type, self.part_name)
 
 class CoreProperties(Part):
-	_propnames = [
-		'cp:category', 'cp:contentStatus', 'cp:contentType', 'dcterms:created',
-		'dc:creator', 'dc:description', 'dc:identifier', 'cp:keywords', 
-		'dc:language','cp:lastModifiedBy', 'cp:lastPrinted', 'dcterms:modified',
-		'cp:revision','dc:subject', 'dc:title', 'cp:version']
-	_local_props = [name.split(':')[1] for name in _propnames]
-	_prop_map = dict(zip(_local_props, _propnames))
-
 	content_type = "application/vnd.openxmlformats-package.core-properties+xml"
 	rel_type = "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties"
 
 	def __init__(self, package, name, encoding=None):
 		Part.__init__(self, package, name)
-		self._props = {}
-		self.category = None
-		self.contentStatus = None
-		self.contentType = None
-		self.created = None
-		self.creator = None
-		self.description = None
-		self.identifier = None
-		self.keywords = None
-		self.language = None
-		self.lastModifiedBy = None
-		self.lastPrinted = None
-		self.modified = None
-		self.revision = None
-		self.subject = None
-		self.title = None
-		self.version = None
+		self.encoding = encoding or 'utf-8'
+		self.element = None
 
 	def dump(self):
-		tfile = open(os.path.join(TEMPLATES, 'coreprops.xml.tmpl'))
-		tmpl = Template(tfile.read().decode('utf-8'))
-		props = []
-		for lname, xmlname in self._prop_map.iteritems():
-			val = getattr(self, lname)
-			if val:
-				props.append('<%s>%s</%s>' % (xmlname, val, xmlname))
-		return tmpl.substitute({'props':"\n".join(props)}).encode(self.encoding)
+		if self.element:
+			return tostring(self.element, encoding=self.encoding)
+		return ''
 
