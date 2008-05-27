@@ -2,12 +2,13 @@
 """
 
 import os
-from cStringIO import StringIO
 from lxml.etree import Element, ElementTree, fromstring, tostring 
 from string import Template
 from UserDict import DictMixin
 
 from util import validator, parse_tag, handle
+
+ElementClass = Element('__').__class__
 
 ooxml_namespaces = {
 	'cp':'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
@@ -15,8 +16,6 @@ ooxml_namespaces = {
 	'dcterms':'http://purl.org/dc/terms/',
 	'dcmitype':'http://purl.org/dc/dcmitype/',
 	'xsi':'http://www.w3.org/2001/XMLSchema-instance',
-	'v':"urn:schemas-microsoft-com:vml",
-	'w':"http://schemas.openxmlformats.org/wordprocessingml/2006/main",
 }
 
 class Relational(object):
@@ -140,7 +139,7 @@ class Package(DictMixin, Relational):
 				raise ValueError('Invalid Types child element: %s' % raw_tag)
 			self.content_types.add(t)
 
-	def _load_part(self, name, fp):
+	def _load_part(self, name, data):
 		"""This is the default loader for unhandled parts.
 
 		Parts can have custom loading logic by defining their own package
@@ -158,13 +157,13 @@ class Package(DictMixin, Relational):
 		else:
 			ct = None
 		if ct:
-			part = Part(self, name, ct, fp=fp)
+			part = Part(self, name, ct, data=data)
 			self[name] = part
 
 	@handle('http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties')
-	def _load_core_props(self, name, fp):
+	def _load_core_props(self, name, data):
 		self.core_properties = cp = CoreProperties(self, name)
-		cp.element = fromstring(fp.read())
+		cp.element = fromstring(data)
 		self[cp.name] = cp
 
 	def map_name(self, name):
@@ -185,17 +184,14 @@ class Part(Relational):
 	content_type = None
 	rel_type = None
 
-	def __init__(self, package, name, growth_hint=None, fp=None):
+	def __init__(self, package, name, growth_hint=None, data=None):
 		self.name = self._validate_name(name)
 		self.base = os.path.dirname(self.name)
 		self.package = package
 		self.growth_hint = growth_hint
 		if not isinstance(self, Relationships):
 			self.relationships = Relationships(self.package, self)
-		if fp is None:
-			fp = StringIO()
-		self.fp = fp
-		self.encoding = None
+		self.data = data
 
 	@validator
 	def _validate_name(self, name):
@@ -212,12 +208,16 @@ class Part(Relational):
 	
 	def __iter__(self):
 		"""Should return an iterator for the underlying content."""
-		return iter(self.fp)
+		return iter(self.data or [])
 
 	def dump(self):
 		"""Return the raw bytes of the Part."""
-		self.fp.seek(0)
-		return self.fp.read()
+		data = self.data
+		if isinstance(data, ElementClass):
+			data = tostring(data)
+		if isinstance(data, unicode):
+			return data.encode('utf-8')
+		return data
 
 class Relationship(object):
 	"""Represents an OPC relationship between a Package/Part and another Part.

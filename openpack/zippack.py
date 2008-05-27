@@ -1,7 +1,3 @@
-try:
-	from cStringIO import StringIO
-except ImportError:
-	from StringIO import StringIO
 import os
 import time
 from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
@@ -32,14 +28,14 @@ class ZipPackage(Package):
 				if relname in zf.namelist():
 					item._load_rels(zf.read(relname))
 			for rel in item.relationships:
-				pfp = StringIO()
+				data = []
 				for name in self.map_name(rel.target):
-					pfp.write(zf.read(name))
-				pfp.seek(0)
+					data.append(zf.read(name))
+				data = "".join(data)
 				pname = os.path.join(item.base, rel.target)
 				# get a handler for the relationship type or use a default
 				add_part = get_handler(rel.type, ZipPackage._load_part)
-				add_part(self, pname, pfp)
+				add_part(self, pname, data)
 				ropen(self[pname])
 		ropen(self)
 		zf.close()

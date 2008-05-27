@@ -23,9 +23,7 @@ class TestZipPack(object):
 		self.pack.relate(p)
 	
 	def test_write_to_part(self):
-		self.part.fp.write(
-			'<test>hi there</test>'
-		)
+		self.part.data = '<test>hi there</test>'
 	
 	def test_save(self):
 		self.pack.save()
@@ -38,7 +36,7 @@ class TestZipPack(object):
 	def test_contents(self):
 		assert '/test/part.xml' in self.pack
 		self.part = self.pack['/test/part.xml']
-		assert self.part.fp.read() == '<test>hi there</test>'
+		assert self.part.data == '<test>hi there</test>'
 	
 	def test_relationships(self):
 		print self.pack.relationships.children
