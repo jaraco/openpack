@@ -5,4 +5,3 @@ setup(
     version="0.3",
     packages=['openpack'],
 )
-
