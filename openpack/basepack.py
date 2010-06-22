@@ -67,6 +67,7 @@ class Package(DictMixin, Relational):
 		self.relationships = rels = Relationships(self, self)
 		self[rels.name] = rels
 		self.content_types = ContentTypes()
+		self.content_types.add(DefaultType(rels.content_type, 'rels'))
 		self.core_properties = None
 		self.start_part = None
 		self.name = name
