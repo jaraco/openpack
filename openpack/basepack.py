@@ -167,10 +167,6 @@ class Package(DictMixin, Relational):
 		cp.element = fromstring(data)
 		self[cp.name] = cp
 
-	def map_name(self, name):
-		"Subclasses can override this for custom name mapping."
-		return name
-
 	def __repr__(self):
 		return "Package-%s" % id(self)
 

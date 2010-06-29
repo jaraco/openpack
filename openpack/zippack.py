@@ -28,11 +28,8 @@ class ZipPackage(Package):
 				if relname in zf.namelist():
 					item._load_rels(zf.read(relname))
 			for rel in item.relationships:
-				data = []
-				for name in self.map_name(rel.target):
-					data.append(zf.read(name))
-				data = "".join(data)
 				pname = os.path.join(item.base, rel.target)
+				data = "".join(self._get_matching_segments(rel.target))
 				# get a handler for the relationship type or use a default
 				add_part = get_handler(rel.type, ZipPackage._load_part)
 				add_part(self, pname, data)
@@ -69,8 +66,14 @@ class ZipPackage(Package):
 			part_info.compress_type = ZIP_DEFLATED
 			zf.writestr(part_info, content)
 
-	def map_name(self, name):
-		return [n for n in self._zipfile.namelist() if n.startswith(name)]
+	def _get_matching_segments(self, name):
+		"""
+		Return a generator yielding each of the segments who's names
+		match name.
+		"""
+		for n in self._zipfile.namelist():
+			if n.startswith(name):
+				yield self._zipfile.read(n)
 
 if __name__ == '__main__':
 	zp = ZipPackage('../data/whatever.docx')
