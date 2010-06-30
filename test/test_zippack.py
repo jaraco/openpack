@@ -14,8 +14,8 @@ from common import SamplePart
 TESTFILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'temp.zipx')
 
 class TestZipPack(object):
-	def setup_class(cls):
-		cls.remove_testfile()
+	def setup_method(self, method):
+		self.remove_testfile()
 
 	def test_create(self):
 		self.pack = ZipPackage(TESTFILE)
@@ -52,11 +52,13 @@ class TestZipPack(object):
 		print self.pack.relationships.children
 		assert self.pack.related('http://polimetrix.com/relationships/test')[0] == self.part
 
-	def teardown_class(cls):
-		cls.remove_testfile()
+	def teardown_method(self, method):
+		if hasattr(self, 'pack'): del self.pack
+		if hasattr(self, 'part'): del self.part
+		self.remove_testfile()
 
-	@classmethod
-	def remove_testfile(cls):
+	@staticmethod
+	def remove_testfile():
 		if os.path.exists(TESTFILE):
 			os.remove(TESTFILE)
 
