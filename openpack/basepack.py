@@ -2,9 +2,11 @@
 """
 
 import os
-from lxml.etree import Element, ElementTree, fromstring, tostring 
+import posixpath
 from string import Template
 from UserDict import DictMixin
+
+from lxml.etree import Element, ElementTree, fromstring, tostring 
 
 from util import validator, parse_tag, handle
 
@@ -32,7 +34,7 @@ class Relational(object):
 		parts = []
 		package = getattr(self, 'package', None) or self
 		for rel in self.relationships.types.get(reltype, []):
-			parts.append(package[os.path.join(self.base, rel.target)])
+			parts.append(package[posixpath.join(self.base, rel.target)])
 		return parts
 
 	def _load_rels(self, source):
@@ -183,7 +185,7 @@ class Part(Relational):
 
 	def __init__(self, package, name, growth_hint=None, data=None):
 		self.name = self._validate_name(name)
-		self.base = os.path.dirname(self.name)
+		self.base = posixpath.dirname(self.name)
 		self.package = package
 		self.growth_hint = growth_hint
 		if not isinstance(self, Relationships):
@@ -270,6 +272,10 @@ class Relationships(Part):
 	rel_type = None
 
 	def __init__(self, package, source, encoding=None):
+		"""
+		@param source package or part where from which the relationship is derived
+		@ptype source Package or Part
+		"""
 		name = self._name_from_source(source)
 		Part.__init__(self, package, name)
 		self.ids = set()
@@ -320,8 +326,8 @@ class Relationships(Part):
 	def _name_from_source(self, source):
 		if isinstance(source, Package):
 			return "/_rels/.rels"
-		base, item = os.path.split(source.name)
-		return os.path.join(base, '_rels/%s.rels' % item)
+		base, item = posixpath.split(source.name)
+		return posixpath.join(base, '_rels/%s.rels' % item)
 
 class ContentTypes(object):
 	"""A container for managing Package content types."""

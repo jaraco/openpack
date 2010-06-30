@@ -1,5 +1,6 @@
 import os
 import time
+import posixpath
 from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
 
 from basepack import Package, Part, Relationship, Relationships
@@ -18,17 +19,22 @@ class ZipPackage(Package):
 	def open(self):
 		self._zipfile = zf = ZipFile(self.name)
 		self._load_content_types(zf.read('[Content_Types].xml'))
-		self._load_rels(zf.read('_rels/.rels'))
+		rels_path = posixpath.join('_rels', '.rels')
+		self._load_rels(zf.read(rels_path))
 		def ropen(item):
 			if isinstance(item, Relationships):
 				return
 			if isinstance(item, Part):
-				base, rname = os.path.split(item.name)
-				relname = "%s/_rels/%s.rels" % (base[1:], rname)
+				base, rname = posixpath.split(item.name)
+				base = base[1:]
+				relname = posixpath.join(base, '_rels', '%s.rels' % rname)
 				if relname in zf.namelist():
 					item._load_rels(zf.read(relname))
 			for rel in item.relationships:
-				pname = os.path.join(item.base, rel.target)
+				pname = posixpath.join(item.base, rel.target)
+				if pname in self:
+					# This item is already in self.
+					continue
 				data = "".join(self._get_matching_segments(rel.target))
 				# get a handler for the relationship type or use a default
 				add_part = get_handler(rel.type, ZipPackage._load_part)
