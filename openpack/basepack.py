@@ -357,7 +357,8 @@ class ContentTypes(object):
 		
 	@validator
 	def _validate_default(self, ct):
-		assert ct.extension not in self.defaults
+		if ct.extension in self.defaults:
+			assert self.defaults[ct.extension] == ct
 		return ct
 
 	@validator
@@ -366,7 +367,7 @@ class ContentTypes(object):
 		return ct
 
 class DefaultType(object):
-	"""A Default content type, base on a file extension."""
+	"""A Default content type, based on a file extension."""
 	def __init__(self, content_type, extension):
 		self.content_type = content_type
 		self.extension = extension
@@ -378,6 +379,18 @@ class DefaultType(object):
 			ContentType=self.content_type,
 		)
 		return elem
+
+	def __eq__(self, other):
+		"""
+		This object is equal to another if the other is of the
+		DefaultType class and the appropriate attributes match.
+		"""
+		attrs = 'content_type extension'.split()
+		all_attrs_eq = all(
+			getattr(self,attr,None) == getattr(other, attr, None)
+			for attr in attrs
+			)
+		return isinstance(other, DefaultType) and all_attrs_eq
 
 	def __repr__(self):
 		return "DefaultType(%r, %r)" % (self.content_type, self.extension)
