@@ -3,6 +3,7 @@ try:
 except ImportError:
 	from StringIO import StringIO
 import os
+import tempfile
 
 import py.test
 
@@ -63,3 +64,30 @@ class TestZipPack(object):
 		if os.path.exists(TESTFILE):
 			os.remove(TESTFILE)
 
+def test_nested_content_loads():
+	"""
+	Around 26:9448f50260f2, it was found that some content was not being
+	loaded from sample documents.
+	This test replicates that error.
+	"""
+	# todo: use py.test to generate the tempfile
+	fobj, filename = tempfile.mkstemp()
+	os.close(fobj); os.remove(filename)
+	package = ZipPackage(filename)
+	main = SamplePart(package, '/test/main.xml')
+	package[main.name] = main
+	package.content_types.add_override(main)
+	package.relate(main)
+	main.data = '<test>this is the main module</test>'
+	sub = SamplePart(package, '/test/sub.xml')
+	package[sub.name] = sub
+	package.content_types.add_override(sub)
+	main.relate(sub)
+	sub.data = '<test>this is the sub module</test>'
+	package.save()
+	del package, main, sub
+	package = ZipPackage(filename)
+	assert '/test/main.xml' in package
+	main = package['/test/main.xml']
+	sub = package['/test/sub.xml']
+	assert 'sub module' in sub.data
