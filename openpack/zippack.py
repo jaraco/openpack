@@ -73,6 +73,8 @@ class ZipPackage(Package):
 			part = self[name]
 			content = part.dump()
 			if not content:
+				# silently ignore any content that doesn't actually
+				#  contain any content.
 				continue
 			part_info = ZipInfoNow(to_zip_name(name))
 			part_info.create_system = SYSUNIX
