@@ -29,32 +29,39 @@ class TestBasicPackage(object):
 		self.pack = pack1
 
 	def test_package_rels(self):
+		self.test_create()
 		assert self.pack.relationships
 		assert self.pack['/_rels/.rels']
 		assert self.pack.relationships == self.pack['/_rels/.rels']
 
 	def test_content_types(self):
+		self.test_package_rels()
 		# the content types part is not addressable
 		assert '[Content_Types].xml' not in self.pack
 		assert self.pack.content_types
 
 	def test_add_part(self):
+		self.test_content_types()
 		self.part = part = Part(self.pack, '/foo')
 		self.pack[part.name] = part
 	
 	def test_relate_part(self):
+		self.test_add_part()
 		r = Relationship(self.pack, '/foo', 'http://polimetrix.com/part')
 		self.pack.relationships.add(r)
 	
 	def test_related(self):
+		self.test_relate_part()
 		assert self.pack.related('http://polimetrix.com/part')[0] == self.part
 
-	def test_add_no_override(self):
+	def test_add_override_false(self):
+		self.test_related()
 		p = SamplePart(self.pack, '/pmx/samp.vpart')
 		self.pack.add(p, override=False)
 		assert 'vpart' in self.pack.content_types.defaults
 		
 	def test_add_no_override(self):
+		self.test_add_override_false()
 		p = SamplePart(self.pack, '/pmx/samp.main')
 		p.content_type = "app/pmxmain+xml"
 		self.pack.add(p)
