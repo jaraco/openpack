@@ -53,8 +53,6 @@ class TestZipPack(object):
 		assert self.pack.related('http://polimetrix.com/relationships/test')[0] == self.part
 
 	def teardown_class(cls):
-		if hasattr(self, 'pack'): del self.pack
-		if hasattr(self, 'part'): del self.part
 		cls.remove_testfile()
 
 	@classmethod
