@@ -1,6 +1,7 @@
 import os
 import time
 import posixpath
+import functools
 from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
 
 from basepack import Package, Part, Relationship, Relationships
@@ -9,6 +10,13 @@ from util import get_handler
 USER_READ_WRITE = 25165824
 SYSUNIX = 3
 
+def to_zip_name(name):
+	"""
+	Packages store items with names prefixed with slashes, but zip files
+	prefer them without. This method strips the leading slash.
+	"""
+	return name.lstrip('/')
+	
 class ZipPackage(Package):
 	def __init__(self, name):
 		Package.__init__(self, name)
@@ -25,8 +33,7 @@ class ZipPackage(Package):
 			if isinstance(item, Relationships):
 				return
 			if isinstance(item, Part):
-				base, rname = posixpath.split(item.name)
-				base = base[1:]
+				base, rname = posixpath.split(to_zip_name(item.name))
 				relname = posixpath.join(base, '_rels', '%s.rels' % rname)
 				if relname in zf.namelist():
 					item._load_rels(zf.read(relname))
@@ -35,7 +42,8 @@ class ZipPackage(Package):
 				if pname in self:
 					# This item is already in self.
 					continue
-				data = "".join(self._get_matching_segments(rel.target))
+				target_path = to_zip_name(pname)
+				data = "".join(self._get_matching_segments(target_path))
 				# get a handler for the relationship type or use a default
 				add_part = get_handler(rel.type, ZipPackage._load_part)
 				add_part(self, pname, data)
@@ -44,15 +52,16 @@ class ZipPackage(Package):
 		zf.close()
 
 	def save(self, target=None):
-		localtime = time.localtime(time.time())
+		now = time.localtime(time.time())
+		ZipInfoNow = functools.partial(ZipInfo, date_time = now)
 		zf = ZipFile(target or self.name, mode='w', compression=ZIP_DEFLATED)
-		ct_info = ZipInfo('[Content_Types].xml', localtime)
+		ct_info = ZipInfoNow('[Content_Types].xml')
 		ct_info.create_system = SYSUNIX
 		ct_info.flag_bits = 8
 		ct_info.external_attr = USER_READ_WRITE
 		ct_info.compress_type = ZIP_DEFLATED
 		zf.writestr(ct_info, self.content_types.dump())
-		rel_info = ZipInfo('_rels/.rels', localtime)
+		rel_info = ZipInfoNow('_rels/.rels')
 		rel_info.create_system = SYSUNIX
 		rel_info.flag_bits = 8
 		rel_info.external_attr = USER_READ_WRITE
@@ -65,7 +74,7 @@ class ZipPackage(Package):
 			content = part.dump()
 			if not content:
 				continue
-			part_info = ZipInfo(name[1:], localtime)
+			part_info = ZipInfoNow(to_zip_name(name))
 			part_info.create_system = SYSUNIX
 			part_info.flag_bits = 8
 			part_info.external_attr = USER_READ_WRITE
