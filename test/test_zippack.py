@@ -19,6 +19,7 @@ class TestZipPack(object):
 
 	def test_create(self):
 		self.pack = ZipPackage(TESTFILE)
+		assert not os.path.exists(TESTFILE)
 	
 	def test_add_part(self):
 		self.test_create()
