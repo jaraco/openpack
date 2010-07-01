@@ -2,9 +2,12 @@
 """
 
 import os
-from lxml.etree import Element, ElementTree, fromstring, tostring 
+import posixpath
+import datetime
 from string import Template
 from UserDict import DictMixin
+
+from lxml.etree import Element, ElementTree, fromstring, tostring 
 
 from util import validator, parse_tag, handle
 
@@ -32,7 +35,7 @@ class Relational(object):
 		parts = []
 		package = getattr(self, 'package', None) or self
 		for rel in self.relationships.types.get(reltype, []):
-			parts.append(package[os.path.join(self.base, rel.target)])
+			parts.append(package[posixpath.join(self.base, rel.target)])
 		return parts
 
 	def _load_rels(self, source):
@@ -167,10 +170,6 @@ class Package(DictMixin, Relational):
 		cp.element = fromstring(data)
 		self[cp.name] = cp
 
-	def map_name(self, name):
-		"Subclasses can override this for custom name mapping."
-		return name
-
 	def __repr__(self):
 		return "Package-%s" % id(self)
 
@@ -187,7 +186,7 @@ class Part(Relational):
 
 	def __init__(self, package, name, growth_hint=None, data=None):
 		self.name = self._validate_name(name)
-		self.base = os.path.dirname(self.name)
+		self.base = posixpath.dirname(self.name)
 		self.package = package
 		self.growth_hint = growth_hint
 		if not isinstance(self, Relationships):
@@ -238,7 +237,7 @@ class Relationship(object):
    
 	def __repr__(self):
 		args = (self.source, self.target, self.type, self.id, self.mode)
-		return "Relationship(self, %r, %r, %r, %r, %r)" % args
+		return "Relationship(%r, %r, %r, %r, %r)" % args
 
 	@validator
 	def _validate_source(self, source):
@@ -274,6 +273,10 @@ class Relationships(Part):
 	rel_type = None
 
 	def __init__(self, package, source, encoding=None):
+		"""
+		@param source package or part where from which the relationship is derived
+		@ptype source Package or Part
+		"""
 		name = self._name_from_source(source)
 		Part.__init__(self, package, name)
 		self.ids = set()
@@ -324,8 +327,8 @@ class Relationships(Part):
 	def _name_from_source(self, source):
 		if isinstance(source, Package):
 			return "/_rels/.rels"
-		base, item = os.path.split(source.name)
-		return os.path.join(base, '_rels/%s.rels' % item)
+		base, item = posixpath.split(source.name)
+		return posixpath.join(base, '_rels/%s.rels' % item)
 
 class ContentTypes(object):
 	"""A container for managing Package content types."""
@@ -413,17 +416,56 @@ class OverrideType(object):
 	def __repr__(self):
 		return "OverrideType(%r, %r)" % (self.content_type, self.part_name)
 
+from lxml.builder import ElementMaker as _ElementMaker
+class E:
+	pass
+vars(E).update(dict(
+	(key, _ElementMaker(namespace=namespace, nsmap=ooxml_namespaces))
+	for key, namespace in ooxml_namespaces.items()
+	))
+	
 class CoreProperties(Part):
 	content_type = "application/vnd.openxmlformats-package.core-properties+xml"
 	rel_type = "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties"
+	title = ''
+	subject = ''
+	creator = ''
+	keywords = ''
+	description = ''
+	last_modified_by = ''
+	revision = 1
+	created = None
+	modified = None
 
 	def __init__(self, package, name, encoding=None):
 		Part.__init__(self, package, name)
 		self.encoding = encoding or 'utf-8'
-		self.element = None
 
 	def dump(self):
-		if self.element:
-			return tostring(self.element, encoding=self.encoding)
-		return ''
+		# some datetime handling
+		now = datetime.datetime.now()
+		if self.created is None:
+			self.created = now
+		if self.modified is None:
+			self.modified = now
+		created_str = self.created.strftime('%Y-%m-%dT%H:%M:%SZ')
+		created = E.dcterms.created(created_str)
+		created.set('{%(xsi)s}type'%ooxml_namespaces, 'dcterms:W3CDTF')
+		modified_str = self.modified.strftime('%Y-%m-%dT%H:%M:%SZ')
+		modified = E.dcterms.modified(modified_str)
+		modified.set('{%(xsi)s}type'%ooxml_namespaces, 'dcterms:W3CDTF')
+		
+		# create the element
+		element = E.cp.coreProperties(
+			E.dc.title(self.title),
+			E.dc.subject(self.subject),
+			E.dc.creator(self.creator),
+			E.cp.keywords(self.keywords),
+			E.dc.description(self.description),
+			E.cp.revision(str(self.revision)),
+			E.cp.lastModifiedBy(self.last_modified_by),
+			created,
+			modified,
+		)
+		return tostring(element, encoding=self.encoding)
 
