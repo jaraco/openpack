@@ -4,12 +4,15 @@
 import os
 import posixpath
 import datetime
+import logging
 from string import Template
 from UserDict import DictMixin
 
 from lxml.etree import Element, ElementTree, fromstring, tostring 
 
-from util import validator, parse_tag, handle
+from util import validator, parse_tag, handle, get_ext
+
+log = logging.getLogger(__name__)
 
 ElementClass = Element('__').__class__
 
@@ -70,7 +73,7 @@ class Package(DictMixin, Relational):
 		self.relationships = rels = Relationships(self, self)
 		self[rels.name] = rels
 		self.content_types = ContentTypes()
-		self.content_types.add(DefaultType(rels.content_type, 'rels'))
+		self.content_types.add(ContentType.Default(rels.content_type, 'rels'))
 		self.core_properties = None
 		self.start_part = None
 		self.name = name
@@ -99,14 +102,14 @@ class Package(DictMixin, Relational):
 
 		It will also add a content-type - by default an override.  If
 		override is False then it will add a content-type for the extension
-		if on isn't already present.
+		if one isn't already present.
 		"""
+		ct_add_method = [
+			self.content_types.add_default,
+			self.content_types.add_override,
+			][override]
 		self[part.name] = part
-		if override:
-			self.content_types.add_override(part)
-		else:
-			ext = part.name.rsplit('.', 1)[1]
-			self.content_types.add(DefaultType(part.content_type, ext))
+		ct_add_method(part)
 
 	@validator
 	def _validate_part(self, name, part):
@@ -133,15 +136,7 @@ class Package(DictMixin, Relational):
 	def _load_content_types(self, source):
 		"""Load up the content_types object with value from source XML."""
 		elem = fromstring(source)
-		for ce in elem:
-			ns, raw_tag = parse_tag(ce.tag)
-			if raw_tag == 'Default':
-				t = DefaultType(ce.get('ContentType'), ce.get('Extension'))
-			elif raw_tag == 'Override':
-				t = OverrideType(ce.get('ContentType'), ce.get('PartName'))
-			else:
-				raise ValueError('Invalid Types child element: %s' % raw_tag)
-			self.content_types.add(t)
+		self.content_types.update(ContentTypes.from_element(elem))
 
 	def _load_part(self, name, data):
 		"""This is the default loader for unhandled parts.
@@ -150,19 +145,12 @@ class Package(DictMixin, Relational):
 		level method decorated with @handle(relationship_type).  See
 		_load_core_properties in this class for an example.
 		"""
-		try:
-			ext = name.rsplit('.', 1)[1]
-		except IndexError:
-			ext = None
-		if name in self.content_types.overrides:
-			ct = self.content_types.overrides.get(name)
-		elif ext in self.content_types.defaults:
-			ct = self.content_types.defaults[ext]
-		else:
-			ct = None
-		if ct:
-			part = Part(self, name, ct, data=data)
-			self[name] = part
+		ct = self.content_types.find_for(name)
+		if ct is None:
+			log.warning('no content type found for part %(name)s' % vars())
+			return
+		part = Part(self, name, ct, data=data)
+		self[name] = part
 
 	@handle('http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties')
 	def _load_core_props(self, name, data):
@@ -330,91 +318,129 @@ class Relationships(Part):
 		base, item = posixpath.split(source.name)
 		return posixpath.join(base, '_rels/%s.rels' % item)
 
-class ContentTypes(object):
+class ContentTypes(set):
 	"""A container for managing Package content types."""
 	
 	xmlns = '{http://schemas.openxmlformats.org/package/2006/content-types}'
-	def __init__(self, encoding=None):
-		self.children = []
-		self.defaults = {}
-		self.overrides = {}
-		self.encoding = encoding or 'utf-8'
 
 	def add_override(self, part):
-		ct = OverrideType(part.content_type, part.name)
+		ct = ContentType.Override(part.content_type, part.name)
 		self.add(ct)
 		return ct
 
-	def add(self, ct):
-		if isinstance(ct, DefaultType):
-			self.defaults[ct.extension] = self._validate_default(ct)
-		elif isinstance(ct, OverrideType):
-			self.overrides[ct.part_name] = self._validate_override(ct)
-		if ct not in self.children:
-			self.children.append(ct)
-   
-	def dump(self):
-		types = Element(self.xmlns + 'Types', nsmap={None:self.xmlns.strip('{}')})
-		for ct in self.children:
-			types.append(ct.to_element())
-		return tostring(types, encoding=self.encoding)
-		
-	@validator
-	def _validate_default(self, ct):
-		if ct.extension in self.defaults:
-			assert self.defaults[ct.extension] == ct
+	def add_default(self, part):
+		ext = get_ext(part.name)
+		ct = ContentType.Default(part.content_type, ext)
+		self.add(ct)
 		return ct
 
-	@validator
-	def _validate_override(self, ct):
-		assert ct.part_name not in self.overrides
-		return ct
-
-class DefaultType(object):
-	"""A Default content type, based on a file extension."""
-	def __init__(self, content_type, extension):
-		self.content_type = content_type
-		self.extension = extension
+	def dump(self, encoding='utf-8'):
+		return tostring(self.to_element(), encoding=encoding)
 
 	def to_element(self):
-		elem = Element(
-			'Default',
-			Extension=self.extension,
-			ContentType=self.content_type,
-		)
+		elem = Element(self.xmlns + 'Types', nsmap={None:self.xmlns.strip('{}')})
+		elem.extend(ct.to_element() for ct in self)
 		return elem
+
+	@classmethod
+	def from_element(cls, elem):
+		ns, tag = parse_tag(elem.tag)
+		assert tag == 'Types'
+		return cls(map(ContentType.from_element, elem))
+
+	def _item_map(self, class_filter=object):
+		return dict(
+			(item.key, item) 
+			for item in self
+			if isinstance(item, class_filter)
+			)
+
+	def find_for(self, name):
+		"""
+		Get the correct content type for a given name
+		"""
+		map = self._item_map()
+		# first search the overrides (by name)
+		# then fall back to the defaults (by extension)
+		# finally, return None if unmatched
+		return map.get(name, None) or map.get(get_ext(name) or None, None)
+
+	# a couple of properties for backward compatibility - please don't
+	#  try to write to the resultant collections
+	@property
+	def defaults(self):
+		return self._item_map(ContentType.Default)
+
+	@property
+	def overrides(self):
+		return self._item_map(ContentType.Override)
+
+
+
+class ContentType(object):
+	"""
+	An abstract content type.
+	Each content type has a name, which is a mime-type like
+	 application/xml, and a key which refers to the content type.
+	"""
+	def __init__(self, name, key):
+		self.name = name
+		self.key = key
+
+	def to_element(self):
+		element_name = self.__class__.__name__
+		elem = Element(
+			element_name,
+			ContentType=self.name,
+		)
+		elem.set(self.key_name, self.key)
+		return elem
+
+	@classmethod
+	def from_element(cls, element):
+		"given an element, parse out the proper ContentType"
+		# disambiguate the subclass
+		ns, class_name = parse_tag(element.tag)
+		class_ = getattr(ContentType, class_name)
+		if not class_:
+			msg = 'Invalid Types child element: %(class_name)s' % vars()
+			raise ValueError(msg)
+		# construct the subclass
+		key = element.get(class_.key_name)
+		name = element.get('ContentType')
+		return class_(name, key)
+
+	def __repr__(self):
+		params = dict(
+			class_name=self.__class__.__name__,
+			**self.__dict__
+			)
+		return "%(class_name)s(%(name)r, %(key)r)" % params
 
 	def __eq__(self, other):
 		"""
 		This object is equal to another if the other is of the
-		DefaultType class and the appropriate attributes match.
+		same class and the name and key match.
 		"""
-		attrs = 'content_type extension'.split()
+		attrs = 'name key'.split()
 		all_attrs_eq = all(
 			getattr(self,attr,None) == getattr(other, attr, None)
 			for attr in attrs
 			)
-		return isinstance(other, DefaultType) and all_attrs_eq
+		return isinstance(other, self.__class__) and all_attrs_eq
 
-	def __repr__(self):
-		return "DefaultType(%r, %r)" % (self.content_type, self.extension)
 
-class OverrideType(object):
+class Default(ContentType):
+	"""A Default content type, based on a file extension."""
+	key_name = 'Extension'
+ContentType.Default = Default
+del Default
+
+class Override(ContentType):
 	"""An Override content type, based on a part name."""
-	def __init__(self, content_type, part_name):
-		self.content_type = content_type
-		self.part_name = part_name
-
-	def to_element(self):
-		elem = Element(
-			'Override',
-			PartName=self.part_name,
-			ContentType=self.content_type,
-		)
-		return elem
-
-	def __repr__(self):
-		return "OverrideType(%r, %r)" % (self.content_type, self.part_name)
+	key_name = 'PartName'
+ContentType.Override = Override
+del Override
 
 from lxml.builder import ElementMaker as _ElementMaker
 class E:
