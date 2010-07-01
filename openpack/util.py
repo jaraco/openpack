@@ -24,3 +24,23 @@ def handle(url):
 def get_handler(url, default):
 	return _handlers.get(url, default)
 
+def get_ext(name):
+	"""
+	Return the extension only for a name (like a filename)
+	
+	>>> get_ext('foo.bar')
+	'bar'
+	>>> get_ext('.only')
+	'only'
+	>>> get_ext('')
+	''
+	>>> get_ext('noext')
+	''
+	>>> get_ext('emptyext.')
+	''
+	
+	Note that for any non-empty string, the result will never be the
+	same as the input. This is a useful property for basepack.
+	"""
+	other, sep, ext = name.partition('.')
+	return ext
