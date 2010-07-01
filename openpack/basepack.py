@@ -377,7 +377,6 @@ class ContentTypes(set):
 		return self._item_map(ContentType.Override)
 
 
-
 class ContentType(object):
 	"""
 	An abstract content type.
@@ -430,6 +429,8 @@ class ContentType(object):
 			)
 		return isinstance(other, self.__class__) and all_attrs_eq
 
+	def __hash__(self):
+		return hash((self.name, self.key))
 
 class Default(ContentType):
 	"""A Default content type, based on a file extension."""
