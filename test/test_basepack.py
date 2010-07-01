@@ -55,15 +55,16 @@ class TestBasicPackage(object):
 		assert self.pack.related('http://polimetrix.com/part')[0] == self.part
 
 	def test_add_override_false(self):
-		self.test_related()
+		self.test_create()
 		p = SamplePart(self.pack, '/pmx/samp.vpart')
 		self.pack.add(p, override=False)
-		assert 'vpart' in self.pack.content_types.defaults
+		ct = self.pack.content_types.find_for('/pmx/samp.vpart')
+		assert ct is not None
 		
 	def test_add_no_override(self):
-		self.test_add_override_false()
+		self.test_create()
 		p = SamplePart(self.pack, '/pmx/samp.main')
 		p.content_type = "app/pmxmain+xml"
 		self.pack.add(p)
-		assert '/pmx/samp.main' in self.pack.content_types.overrides
-
+		ct = self.pack.content_types.find_for('/pmx/samp.main') 
+		assert ct is not None

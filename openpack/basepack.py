@@ -354,12 +354,13 @@ class ContentTypes(set):
 			for item in self
 			if isinstance(item, class_filter)
 			)
-
+	items = property(_item_map)
+	
 	def find_for(self, name):
 		"""
 		Get the correct content type for a given name
 		"""
-		map = self._item_map()
+		map = self.items
 		# first search the overrides (by name)
 		# then fall back to the defaults (by extension)
 		# finally, return None if unmatched
