@@ -347,7 +347,8 @@ class ContentTypes(object):
 			self.defaults[ct.extension] = self._validate_default(ct)
 		elif isinstance(ct, OverrideType):
 			self.overrides[ct.part_name] = self._validate_override(ct)
-		self.children.append(ct)
+		if ct not in self.children:
+			self.children.append(ct)
    
 	def dump(self):
 		types = Element(self.xmlns + 'Types', nsmap={None:self.xmlns.strip('{}')})
