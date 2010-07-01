@@ -1,4 +1,5 @@
 import py.test
+import re
 
 from common import SamplePart
 from openpack.basepack import *
@@ -68,3 +69,13 @@ class TestBasicPackage(object):
 		self.pack.add(p)
 		ct = self.pack.content_types.find_for('/pmx/samp.main') 
 		assert ct is not None
+		assert ct.name == 'app/pmxmain+xml'
+
+class TestContentTypes:
+	def test_no_duplicates_in_output(self):
+		cts = ContentTypes()
+		cts.add(ContentType.Default('application/xml', 'xml'))
+		cts.add(ContentType.Default('application/xml', 'xml'))
+		assert len(cts) == 1
+		assert len(re.findall('application/xml', cts.dump())) == 1
+		assert len(re.findall('Extension="xml"', cts.dump())) == 1
