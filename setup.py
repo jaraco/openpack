@@ -8,4 +8,7 @@ setup(
 	install_requires=[
 		'lxml',
 	],
+	tests_require=[
+		'py.test>=1.0',
+	],
 )
