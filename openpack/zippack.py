@@ -7,9 +7,6 @@ from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
 from basepack import Package, Part, Relationship, Relationships
 from util import get_handler
 
-USER_READ_WRITE = 25165824
-SYSUNIX = 3
-
 def to_zip_name(name):
 	"""
 	Packages store items with names prefixed with slashes, but zip files
@@ -18,18 +15,25 @@ def to_zip_name(name):
 	return name.lstrip('/')
 	
 class ZipPackage(Package):
-	def __init__(self, name):
-		Package.__init__(self, name)
-		self._zipfile = None
-		if os.path.exists(name):
-			self.open()
+	@classmethod
+	def from_file(cls, filename):
+		package = cls.from_stream(open(filename, 'rb'))
+		package.filename = filename
+		return package
 
-	def open(self):
-		self._zipfile = zf = ZipFile(self.name)
+	@classmethod
+	def from_stream(cls, stream):
+		package = cls()
+		package._load(stream)
+		return package
+
+	def _load(self, stream):
+		zf = ZipFile(stream)
 		self._load_content_types(zf.read('[Content_Types].xml'))
 		rels_path = posixpath.join('_rels', '.rels')
 		self._load_rels(zf.read(rels_path))
 		def ropen(item):
+			"read item and recursively open its children"
 			if isinstance(item, Relationships):
 				return
 			if isinstance(item, Part):
@@ -43,7 +47,7 @@ class ZipPackage(Package):
 					# This item is already in self.
 					continue
 				target_path = to_zip_name(pname)
-				data = "".join(self._get_matching_segments(target_path))
+				data = "".join(self._get_matching_segments(zf, target_path))
 				# get a handler for the relationship type or use a default
 				add_part = get_handler(rel.type, ZipPackage._load_part)
 				add_part(self, pname, data)
@@ -52,21 +56,17 @@ class ZipPackage(Package):
 		zf.close()
 
 	def save(self, target=None):
-		now = time.localtime(time.time())
-		ZipInfoNow = functools.partial(ZipInfo, date_time = now)
-		zf = ZipFile(target or self.name, mode='w', compression=ZIP_DEFLATED)
-		ct_info = ZipInfoNow('[Content_Types].xml')
-		ct_info.create_system = SYSUNIX
-		ct_info.flag_bits = 8
-		ct_info.external_attr = USER_READ_WRITE
-		ct_info.compress_type = ZIP_DEFLATED
-		zf.writestr(ct_info, self.content_types.dump())
-		rel_info = ZipInfoNow('_rels/.rels')
-		rel_info.create_system = SYSUNIX
-		rel_info.flag_bits = 8
-		rel_info.external_attr = USER_READ_WRITE
-		rel_info.compress_type = ZIP_DEFLATED
-		zf.writestr(rel_info, self.relationships.dump())
+		target = target or getattr(self, 'filename', None)
+		if target is None:
+			msg = "Target filename required if %s was not opened from a file" % self.__class__.__name__
+			raise ValueError(msg)
+		self._store(open(target, 'wb'))
+		self.filename = target
+
+	def _store(self, stream):
+		zf = _ZipPackageZipFile(stream, mode='w', compression=ZIP_DEFLATED)
+		zf.write_part('[Content_Types].xml', self.content_types.dump())
+		zf.write_part('_rels/.rels', self.relationships.dump())
 		for name in self.parts:
 			if name == '/_rels/.rels':
 				continue
@@ -76,25 +76,41 @@ class ZipPackage(Package):
 				# silently ignore any content that doesn't actually
 				#  contain any content.
 				continue
-			part_info = ZipInfoNow(to_zip_name(name))
-			part_info.create_system = SYSUNIX
-			part_info.flag_bits = 8
-			part_info.external_attr = USER_READ_WRITE
-			part_info.compress_type = ZIP_DEFLATED
-			zf.writestr(part_info, content)
+			zf.write_part(to_zip_name(name), content)
 
-	def _get_matching_segments(self, name):
+	def _get_matching_segments(self, zf, name):
 		"""
 		Return a generator yielding each of the segments who's names
 		match name.
 		"""
-		for n in self._zipfile.namelist():
+		for n in zf.namelist():
 			if n.startswith(name):
-				yield self._zipfile.read(n)
+				yield zf.read(n)
+
+class _ZipPackageZipFile(ZipFile):
+	"""
+	A wrapper around the zipfile to capture some of the common
+	usage of a ZipFile for ZipPackages.
+	"""
+	def __init__(self, *args, **kwargs):
+		ZipFile.__init__(self, *args, **kwargs)
+		# each piece of content will be created with the same date_time
+		# attribute (set to now)
+		now = time.localtime(time.time())
+		self.zip_info_factory = functools.partial(ZipInfo, date_time = now)
+
+	def write_part(self, name, content):
+		USER_READ_WRITE = 25165824
+		SYSUNIX = 3
+		info = self.zip_info_factory(name)
+		info.create_system = SYSUNIX
+		info.flag_bits = 8
+		info.external_attr = USER_READ_WRITE
+		info.compress_type = ZIP_DEFLATED
+		self.writestr(info, content)
 
 if __name__ == '__main__':
-	zp = ZipPackage('../data/whatever.docx')
-	zp.open()
+	zp = ZipPackage.from_file('../data/whatever.docx')
 	print zp
 	print zp.relationships
 

@@ -25,9 +25,7 @@ class TestBasicPart(object):
 
 class TestBasicPackage(object):
 	def test_create(self):
-		pack0 = Package()
-		pack1 = Package('foo')
-		self.pack = pack1
+		self.pack = Package()
 
 	def test_package_rels(self):
 		self.test_create()

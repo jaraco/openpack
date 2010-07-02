@@ -67,7 +67,7 @@ class Package(DictMixin, Relational):
 	part-names.
 	"""
 
-	def __init__(self, name=None):
+	def __init__(self):
 		self.parts = {}
 		self.base = '/'
 		self.relationships = rels = Relationships(self, self)
@@ -76,7 +76,6 @@ class Package(DictMixin, Relational):
 		self.content_types.add(ContentType.Default(rels.content_type, 'rels'))
 		self.core_properties = None
 		self.start_part = None
-		self.name = name
 	
 	def __setitem__(self, name, part):
 		self._validate_part(name, part)
