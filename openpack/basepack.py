@@ -75,7 +75,6 @@ class Package(DictMixin, Relational):
 		self.content_types = ContentTypes()
 		self.content_types.add(ContentType.Default(rels.content_type, 'rels'))
 		self.core_properties = None
-		self.start_part = None
 	
 	def __setitem__(self, name, part):
 		self._validate_part(name, part)
