@@ -270,11 +270,6 @@ class Relationships(Part):
 		self.types = {}
 		self.encoding = encoding or 'utf-8'
 
-	def clear(self):
-		self.ids.clear()
-		self.children.clear()
-		self.types.clear()
-
 	class relationships(object):
 		def __get__(self, instance, owner):
 			raise ValueError("Relationship parts have no relationships.")
