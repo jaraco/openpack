@@ -72,9 +72,20 @@ def test_create_package_from_stream(zippack_sample):
 	Not everybody wants to create a package from a file system object.
 	Make sure the packages can be created from a stream.
 	"""
-	from StringIO import StringIO
 	input_stream = StringIO(zippack_sample)
 	pack = ZipPackage.from_stream(input_stream)
+
+def test_store_empty_package():
+	pack = ZipPackage()
+	data = StringIO()
+	pack._store(data)
+	data.seek(0)
+	pack = ZipPackage.from_stream(data)
+
+def test_as_stream():
+	"Get a package as a readable stream"
+	stream = ZipPackage().as_stream()
+	assert hasattr(stream, 'read')
 
 def test_create_and_open(writable_filename):
 	test_save(writable_filename)

@@ -3,6 +3,8 @@ import time
 import posixpath
 import functools
 from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
+try: from cStringIO import StringIO
+except ImportError: from StringIO import StringIO
 
 from basepack import Package, Part, Relationship, Relationships
 from util import get_handler
@@ -62,6 +64,15 @@ class ZipPackage(Package):
 			raise ValueError(msg)
 		self._store(open(target, 'wb'))
 		self.filename = target
+
+	def as_stream(self):
+		"""
+		Return a zipped package as a readable stream
+		"""
+		stream = StringIO()
+		self._store(stream)
+		stream.seek(0)
+		return stream
 
 	def _store(self, stream):
 		zf = _ZipPackageZipFile(stream, mode='w', compression=ZIP_DEFLATED)

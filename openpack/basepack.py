@@ -43,14 +43,9 @@ class Relational(object):
 
 	def _load_rels(self, source):
 		"""Load relationships from source XML."""
-		elem = fromstring(source)
-		for rel in elem:
-			mode = rel.get('TargetMode')
-			target = rel.get('Target')
-			rtype = rel.get('Type')
-			id = rel.get('Id')
-			relationship = Relationship(self, target, rtype, id, mode)
-			self.relationships.add(relationship)
+		# don't get confused here - the original source is string data;
+		#  the parameter source below is a Part object
+		self.relationships.load(source=self, data=source)
 
 class Package(DictMixin, Relational):
 	"""A base class for an OPC package.
@@ -279,8 +274,6 @@ class Relationships(Part):
 	relationships = relationships()
   
 	def dump(self):
-		if not self.children:
-			return ''
 		rels = Element(self.xmlns + 'Relationships', nsmap={None:self.xmlns.strip('{}')})
 		for rel in self:
 			rels.append(Element(
@@ -291,6 +284,23 @@ class Relationships(Part):
 				Id=rel.id,
 			))
 		return tostring(rels, encoding=self.encoding)
+
+	def load(self, source, data):
+		"""
+		@param source The source Part for each relationship in this
+		              collection
+		@ptype source Part
+		@param data Relationship XML from a previous dump operation
+		@ptype data string
+		"""
+		elem = fromstring(data)
+		for rel in elem:
+			mode = rel.get('TargetMode')
+			target = rel.get('Target')
+			rtype = rel.get('Type')
+			id = rel.get('Id')
+			relationship = Relationship(source, target, rtype, id, mode)
+			self.add(relationship)
 
 	def __iter__(self):
 		return iter(self.children)
