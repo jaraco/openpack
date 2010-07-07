@@ -108,3 +108,17 @@ class TestContentTypes:
 		assert len(cts) == 1
 		assert len(re.findall('application/xml', cts.dump())) == 1
 		assert len(re.findall('Extension="xml"', cts.dump())) == 1
+
+class TestDefaultNamedPart:
+	def test_default_named_part(self):
+		class PartToTest(DefaultNamed, Part):
+			default_name = '/part_name'
+		pack = Package()
+		part = PartToTest(pack)
+		assert part.name == PartToTest.default_name
+
+	def test_default_named_part_missing_attribute(self):
+		class PartToTest(DefaultNamed, Part):
+			pass
+		pack = Package()
+		py.test.raises(AttributeError, PartToTest, pack)

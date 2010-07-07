@@ -172,6 +172,16 @@ class Package(DictMixin, Relational):
 			or part.content_type == content_type
 			)
 
+class DefaultNamed(object):
+	"""
+	Mix-in for Parts that have a default name. Subclasses should include
+	a 'default_name' attribute, which will be used during construction
+	if a name is not explicitly defined.
+	"""
+	def __init__(self, package, name=None, *args, **kwargs):
+		name = name or self.default_name
+		super(DefaultNamed, self).__init__(package, name, *args, **kwargs)
+
 class Part(Relational):
 	"""Parts are the building blocks of OOXML files.
 
