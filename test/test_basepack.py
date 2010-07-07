@@ -58,16 +58,40 @@ class TestBasicPackage(object):
 		p = SamplePart(self.pack, '/pmx/samp.vpart')
 		self.pack.add(p, override=False)
 		ct = self.pack.content_types.find_for('/pmx/samp.vpart')
+		assert isinstance(ct, ContentType.Default)
 		assert ct is not None
+		assert ct.key == 'vpart'
+		assert ct.name == p.content_type
 		
 	def test_add_no_override(self):
 		self.test_create()
-		p = SamplePart(self.pack, '/pmx/samp.main')
-		p.content_type = "app/pmxmain+xml"
+		p = SamplePart(self.pack, '/pmx/samp.main', content_type='app/pmxmain+xml')
 		self.pack.add(p)
 		ct = self.pack.content_types.find_for('/pmx/samp.main') 
+		assert isinstance(ct, ContentType.Override)
 		assert ct is not None
-		assert ct.name == 'app/pmxmain+xml'
+		assert ct.key == p.name
+		assert ct.name == p.content_type
+
+	def test_get_parts_by_content_type(self):
+		pack = Package()
+		part = SamplePart(pack, '/pmx/samp.main')
+		pack.add(part)
+		parts = pack.get_parts_by_content_type(part.content_type)
+		assert parts.next() is part
+		py.test.raises(StopIteration, parts.next)
+		ct = pack.content_types.find_for(part.name)
+		parts = pack.get_parts_by_content_type(ct)
+		assert parts.next() is part
+		py.test.raises(StopIteration, parts.next)
+
+	def test_get_parts_by_class(self):
+		pack = Package()
+		part = SamplePart(pack, '/pmx/samp.main')
+		pack.add(part)
+		parts = pack.get_parts_by_class(SamplePart)
+		assert parts.next() is part
+		py.test.raises(StopIteration, parts.next)
 
 class TestContentTypes:
 	def test_no_duplicates_in_output(self):

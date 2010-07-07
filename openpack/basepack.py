@@ -142,7 +142,7 @@ class Package(DictMixin, Relational):
 		if ct is None:
 			log.warning('no content type found for part %(name)s' % vars())
 			return
-		part = Part(self, name, ct, data=data)
+		part = Part(self, name, data=data)
 		self[name] = part
 
 	@handle('http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties')
@@ -153,6 +153,24 @@ class Package(DictMixin, Relational):
 
 	def __repr__(self):
 		return "Package-%s" % id(self)
+
+	def get_parts_by_class(self, cls):
+		"""
+		Return all parts of this package that are instances of cls
+		(where cls is passed directly to isinstance, so can be a class
+		or sequence of classes).
+		"""
+		return (part for part in self.parts.values() if isinstance(part, cls))
+
+	def get_parts_by_content_type(self, content_type):
+		# first find any parts who's registered type matches or who's
+		#  content_type attribute matches
+		return (
+			part
+			for part in self.parts.values()
+			if self.content_types.find_for(part.name) == content_type
+			or part.content_type == content_type
+			)
 
 class Part(Relational):
 	"""Parts are the building blocks of OOXML files.
@@ -165,9 +183,13 @@ class Part(Relational):
 	content_type = None
 	rel_type = None
 
-	def __init__(self, package, name, growth_hint=None, data=None):
+	def __init__(self, package, name, content_type=None, rel_type=None, growth_hint=None, data=None):
 		self.name = name
 		self.package = package
+		if content_type is not None:
+			self.content_type = content_type
+		if rel_type is not None:
+			self.rel_type = rel_type
 		self.growth_hint = growth_hint
 		if not isinstance(self, Relationships):
 			self.relationships = Relationships(self.package, self)
