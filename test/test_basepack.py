@@ -77,3 +77,14 @@ class TestContentTypes:
 		assert len(cts) == 1
 		assert len(re.findall('application/xml', cts.dump())) == 1
 		assert len(re.findall('Extension="xml"', cts.dump())) == 1
+
+class TestParts:
+	invalid_names = ('foo', '', None)
+	def test_invalid_part_names(self):
+		for name in self.invalid_names:
+			py.test.raises(ValueError, SamplePart, None, name)
+
+	def test_reset_part_name_to_invalid_name(self):
+		part = SamplePart(None, '/foo')
+		for name in self.invalid_names:
+			py.test.raises(ValueError, setattr, part, 'name', name)
