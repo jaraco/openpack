@@ -5,6 +5,8 @@ from common import SamplePart
 from openpack.basepack import *
 
 class TestBasicPart(object):
+	invalid_names = ('abc', '/abc/', '/foo/bar.', '/bar/./abc.xml')
+
 	def test_good_names(self):
 		for n in ('/abc', '/foo/bar', '/foo-1/bar.xml'):
 			yield self.check_name, n
@@ -14,10 +16,15 @@ class TestBasicPart(object):
 			py.test.raises(ValueError, Part, None, name)
 		else:
 			p = Part(None, name)
-	
+
 	def test_bad_names(self):
-		for n in ('abc', '/abc/', '/foo/bar.', '/bar/./abc.xml'):
+		for n in self.invalid_names:
 			yield self.check_name, n, True
+
+	def test_reset_part_name_to_invalid_name(self):
+		part = SamplePart(None, '/foo')
+		for name in self.invalid_names:
+			py.test.raises(ValueError, setattr, part, 'name', name)
 
 	def test_part_rels(self):
 		p = Part(None, '/word/document.xml')
@@ -101,14 +108,3 @@ class TestContentTypes:
 		assert len(cts) == 1
 		assert len(re.findall('application/xml', cts.dump())) == 1
 		assert len(re.findall('Extension="xml"', cts.dump())) == 1
-
-class TestParts:
-	invalid_names = ('foo', '', None)
-	def test_invalid_part_names(self):
-		for name in self.invalid_names:
-			py.test.raises(ValueError, SamplePart, None, name)
-
-	def test_reset_part_name_to_invalid_name(self):
-		part = SamplePart(None, '/foo')
-		for name in self.invalid_names:
-			py.test.raises(ValueError, setattr, part, 'name', name)
