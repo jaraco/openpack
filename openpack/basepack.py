@@ -166,16 +166,19 @@ class Part(Relational):
 	rel_type = None
 
 	def __init__(self, package, name, growth_hint=None, data=None):
-		self.name = self._validate_name(name)
-		self.base = posixpath.dirname(self.name)
+		self.name = name
 		self.package = package
 		self.growth_hint = growth_hint
 		if not isinstance(self, Relationships):
 			self.relationships = Relationships(self.package, self)
 		self.data = data
 
+	@property
+	def base(self):
+		return posixpath.dirname(self.name)
+
 	@validator
-	def _validate_name(self, name):
+	def _set_name(self, name):
 		assert name
 		assert name[0] == '/', "%s does not start with a '/'" % name
 		assert name[-1] != '/', "%s ends with a '/'" % name
@@ -185,8 +188,13 @@ class Part(Relational):
 			#TODO: test for percent encoded slash and unreserved chars
 			assert segment[-1] != '.'
 			assert segment != '.'
-		return name
-	
+		self._name = name
+
+	def _get_name(self):
+		return self._name
+
+	name = property(_get_name, _set_name)
+
 	def __iter__(self):
 		"""Should return an iterator for the underlying content."""
 		return iter(self.data or [])
