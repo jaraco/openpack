@@ -230,7 +230,7 @@ class Part(Relational):
 		"""Return the raw bytes of the Part."""
 		data = self.data
 		if isinstance(data, ElementClass):
-			data = tostring(data)
+			data = tostring(data, encoding='utf-8', pretty_print=True)
 		if isinstance(data, unicode):
 			return data.encode('utf-8')
 		return data
