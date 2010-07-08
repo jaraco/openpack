@@ -13,17 +13,6 @@ _nstag = re.compile('(\{http://[^}]+\}){0,1}([a-zA-Z0-9_]+)')
 def parse_tag(t):
 	return _nstag.match(t).groups()
 
-_handlers = {}
-
-def handle(url):
-	def _handle(f):
-		_handlers[url] = f
-		return f
-	return _handle
-
-def get_handler(url, default):
-	return _handlers.get(url, default)
-
 def get_ext(name):
 	"""
 	Return the extension only for a name (like a filename)

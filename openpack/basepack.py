@@ -7,10 +7,11 @@ import datetime
 import logging
 from string import Template
 from UserDict import DictMixin
+from collections import defaultdict
 
 from lxml.etree import Element, ElementTree, fromstring, tostring 
 
-from util import validator, parse_tag, handle, get_ext
+from util import validator, parse_tag, get_ext
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ class Relational(object):
 	"A mixin class for packages and parts; both support relationships."
 	def relate(self, part, id=None):
 		"""Relate this package component to the supplied part."""
-		name = part.name[len(self.base):].lstrip('/')
+		name = part.name.lstrip(self.base).lstrip('/')
 		rel = Relationship(self, name, part.rel_type, id=id)
 		self.relationships.add(rel)
 		return rel
@@ -128,28 +129,19 @@ class Package(DictMixin, Relational):
 
 	def _load_content_types(self, source):
 		"""Load up the content_types object with value from source XML."""
-		elem = fromstring(source)
-		self.content_types.update(ContentTypes.from_element(elem))
+		self.content_types.update(ContentTypes.load(source))
 
-	def _load_part(self, name, data):
-		"""This is the default loader for unhandled parts.
-
-		Parts can have custom loading logic by defining their own package
-		level method decorated with @handle(relationship_type).  See
-		_load_core_properties in this class for an example.
+	def _load_part(self, rel_type, name, data):
 		"""
-		ct = self.content_types.find_for(name)
-		if ct is None:
+		Load a part into this package based on its relationship type
+		"""
+		if self.content_types.find_for(name) is None:
 			log.warning('no content type found for part %(name)s' % vars())
 			return
-		part = Part(self, name, data=data)
+		cls = Part.classes_by_rel_type[rel_type]
+		part = cls(self, name)
+		part.load(data)
 		self[name] = part
-
-	@handle('http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties')
-	def _load_core_props(self, name, data):
-		self.core_properties = cp = CoreProperties(self, name)
-		cp.element = fromstring(data)
-		self[cp.name] = cp
 
 	def __repr__(self):
 		return "Package-%s" % id(self)
@@ -182,14 +174,41 @@ class DefaultNamed(object):
 		name = name or self.default_name
 		super(DefaultNamed, self).__init__(package, name, *args, **kwargs)
 
+class RelationshipTypeHandler(type):
+	"""
+	A metaclass designed to register new Part classes that handle
+	particular relationship types. Whenever a new subclass of Part is
+	created, its rel_type attribute will be mapped to that class.
+	
+	Subsequently, Part.classes_by_rel_type will be a mapping of
+	relationship-type to the appropriate class for that rel-type.
+	"""
+	def __new__(mcs, name, bases, attrs):
+		"""
+		This is called when a new class is created of this type
+		"""
+		# Allow the new class to be created
+		cls = type.__new__(mcs, name, bases, attrs)
+		# if the class (or its parent) doesn't already have a mapping
+		#  of relationship type to class, create one (with this new
+		#  class being the default).
+		if not hasattr(cls, 'classes_by_rel_type'):
+			cls.classes_by_rel_type = defaultdict(lambda: cls)
+		rt = attrs.get('rel_type', None)
+		if rt:
+			cls.classes_by_rel_type[rt] = cls
+		return cls
+
 class Part(Relational):
-	"""Parts are the building blocks of OOXML files.
+	"""
+	Parts are the building blocks of OOXML files.
 
 	All Part subclasses need to define their content-type in a
 	content_type attribute.  Most will also need a relationship-type 
 	(defined in the rel_type attribute).  See the documentation for the
 	part that you are implementing for the proper values for those attributes.
 	"""
+	__metaclass__ = RelationshipTypeHandler
 	content_type = None
 	rel_type = None
 
@@ -203,7 +222,8 @@ class Part(Relational):
 		self.growth_hint = growth_hint
 		if not isinstance(self, Relationships):
 			self.relationships = Relationships(self.package, self)
-		self.data = data
+		if data is not None:
+			self.load(data)
 
 	@property
 	def base(self):
@@ -239,6 +259,9 @@ class Part(Relational):
 		if isinstance(data, unicode):
 			return data.encode('utf-8')
 		return data
+
+	def load(self, data):
+		self.data = data
 
 class Relationship(object):
 	"""Represents an OPC relationship between a Package/Part and another Part.
@@ -385,6 +408,11 @@ class ContentTypes(set):
 	def dump(self, encoding='utf-8'):
 		return tostring(self.to_element(), encoding=encoding)
 
+	@classmethod
+	def load(cls, source):
+		elem = fromstring(source)
+		return cls.from_element(elem)
+
 	def to_element(self):
 		elem = Element(self.xmlns + 'Types', nsmap={None:self.xmlns.strip('{}')})
 		elem.extend(ct.to_element() for ct in self)
@@ -513,9 +541,9 @@ class CoreProperties(Part):
 	created = None
 	modified = None
 
-	def __init__(self, package, name, encoding=None):
+	def __init__(self, package, name, encoding='utf-8'):
 		Part.__init__(self, package, name)
-		self.encoding = encoding or 'utf-8'
+		self.encoding = encoding
 
 	def dump(self):
 		# some datetime handling
