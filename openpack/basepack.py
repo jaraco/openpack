@@ -193,17 +193,12 @@ class Part(Relational):
 	content_type = None
 	rel_type = None
 
-	def __init__(self, package, name, content_type=None, rel_type=None, growth_hint=None, data=None):
+	def __init__(self, package, name, **kwargs):
+		self.__dict__.update(kwargs)
 		self.name = name
 		self.package = package
-		if content_type is not None:
-			self.content_type = content_type
-		if rel_type is not None:
-			self.rel_type = rel_type
-		self.growth_hint = growth_hint
 		if not isinstance(self, Relationships):
 			self.relationships = Relationships(self.package, self)
-		self.data = data
 
 	@property
 	def base(self):
