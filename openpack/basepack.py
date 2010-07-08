@@ -194,7 +194,9 @@ class Part(Relational):
 	rel_type = None
 
 	def __init__(self, package, name, **kwargs):
-		self.__dict__.update(kwargs)
+		#map(functools.partial(setattr, self), *kwargs.items())
+		for key, value in kwargs.items():
+			setattr(self, key, value)
 		self.name = name
 		self.package = package
 		if not isinstance(self, Relationships):
