@@ -71,7 +71,6 @@ class Package(DictMixin, Relational):
 		self[rels.name] = rels
 		self.content_types = ContentTypes()
 		self.content_types.add(ContentType.Default(rels.content_type, 'rels'))
-		self.core_properties = None
 	
 	def __setitem__(self, name, part):
 		self._validate_part(name, part)
@@ -165,6 +164,11 @@ class Package(DictMixin, Relational):
 			if self.content_types.find_for(part.name) == content_type
 			or part.content_type == content_type
 			)
+
+	@property
+	def core_properties(self):
+		next = lambda item: item.next()
+		return next(self.get_parts_by_class(CoreProperties))
 
 class DefaultNamed(object):
 	"""
