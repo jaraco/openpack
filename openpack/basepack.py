@@ -546,25 +546,58 @@ class CoreProperties(Part):
 	revision = 1
 	created = None
 	modified = None
+	dt_format = '%Y-%m-%dT%H:%M:%SZ'
 
-	def __init__(self, package, name, encoding='utf-8'):
+	def __init__(self, package, name):
 		Part.__init__(self, package, name)
-		self.encoding = encoding
 
-	def dump(self):
+	def load(self, data):
+		xml = fromstring(data)
+		DC = lambda tag: '{%(dc)s}' % ooxml_namespaces + tag
+		CP = lambda tag: '{%(cp)s}' % ooxml_namespaces + tag
+		DCTERMS = lambda tag: '{%(dcterms)s}' % ooxml_namespaces + tag
+		identity = lambda x: x
+		def set_attr_if_tag(tag, attr=None, transform=identity):
+			if attr is None:
+				ns, attr = parse_tag(tag)
+			elem = xml.find(tag)
+			if elem and elem.text:
+				value = transform(elem.text)
+				setattr(self, attr, value)
+		map(set_attr_if_tag, (
+			DC('title'),
+			DC('subject'),
+			DC('creator'),
+			CP('keywords'),
+			DC('description'),
+			))
+		set_attr_if_tag(CP('revision'), transform=int)
+		set_attr_if_tag(CP('lastModifiedBy'), 'last_modified_by')
+		def parse_datetime(str):
+			try:
+				result = datetime.datetime.strptime(str, self.dt_format)
+			except ValueError :
+				result = str
+			return result
+		set_attr_if_tag(DCTERMS('created'), transform=parse_datetime)
+		set_attr_if_tag(DCTERMS('modified'), transform=parse_datetime)
+
+	def dump(self, encoding='utf-8'):
+		return tostring(self.to_element(), encoding=encoding)
+
+	def to_element(self):
 		# some datetime handling
 		now = datetime.datetime.now()
 		if self.created is None:
 			self.created = now
 		if self.modified is None:
 			self.modified = now
-		created_str = self.created.strftime('%Y-%m-%dT%H:%M:%SZ')
+		created_str = self.created.strftime(self.dt_format)
 		created = E.dcterms.created(created_str)
 		created.set('{%(xsi)s}type'%ooxml_namespaces, 'dcterms:W3CDTF')
-		modified_str = self.modified.strftime('%Y-%m-%dT%H:%M:%SZ')
+		modified_str = self.modified.strftime(self.dt_format)
 		modified = E.dcterms.modified(modified_str)
 		modified.set('{%(xsi)s}type'%ooxml_namespaces, 'dcterms:W3CDTF')
-		
 		# create the element
 		element = E.cp.coreProperties(
 			E.dc.title(self.title),
@@ -577,5 +610,6 @@ class CoreProperties(Part):
 			created,
 			modified,
 		)
-		return tostring(element, encoding=self.encoding)
+		return element
 
+	element = property(to_element)
