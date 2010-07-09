@@ -7,7 +7,6 @@ try: from cStringIO import StringIO
 except ImportError: from StringIO import StringIO
 
 from basepack import Package, Part, Relationship, Relationships
-from util import get_handler
 
 def to_zip_name(name):
 	"""
@@ -50,10 +49,8 @@ class ZipPackage(Package):
 					continue
 				target_path = to_zip_name(pname)
 				data = "".join(self._get_matching_segments(zf, target_path))
-				# get a handler for the relationship type or use a default
-				add_part = get_handler(rel.type, ZipPackage._load_part)
-				add_part(self, pname, data)
-				ropen(self[pname])
+				new_part = self._load_part(rel.type, pname, data)
+				if new_part: ropen(new_part)
 		ropen(self)
 		zf.close()
 
