@@ -557,7 +557,7 @@ class CoreProperties(Part):
 			if attr is None:
 				ns, attr = parse_tag(tag)
 			elem = xml.find(tag)
-			if elem and elem.text:
+			if elem is not None and elem.text:
 				value = transform(elem.text)
 				setattr(self, attr, value)
 		map(set_attr_if_tag, (
