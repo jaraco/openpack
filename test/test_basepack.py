@@ -30,6 +30,10 @@ class TestBasicPart(object):
 		p = Part(None, '/word/document.xml')
 		assert isinstance(p.relationships, Relationships)
 
+	def test_cant_dump_part_without_data(self):
+		part = Part(None, '/word/document.xml')
+		py.test.raises(BaseException, part.dump)
+
 class TestBasicPackage(object):
 	def test_create(self):
 		self.pack = Package()

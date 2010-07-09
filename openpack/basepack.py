@@ -218,18 +218,14 @@ class Part(Relational):
 	content_type = None
 	rel_type = None
 
-	def __init__(self, package, name, content_type=None, rel_type=None, growth_hint=None, data=None):
+	def __init__(self, package, name, **kwargs):
+		#map(functools.partial(setattr, self), *kwargs.items())
+		for key, value in kwargs.items():
+			setattr(self, key, value)
 		self.name = name
 		self.package = package
-		if content_type is not None:
-			self.content_type = content_type
-		if rel_type is not None:
-			self.rel_type = rel_type
-		self.growth_hint = growth_hint
 		if not isinstance(self, Relationships):
 			self.relationships = Relationships(self.package, self)
-		if data is not None:
-			self.load(data)
 
 	@property
 	def base(self):
@@ -261,7 +257,7 @@ class Part(Relational):
 		"""Return the raw bytes of the Part."""
 		data = self.data
 		if isinstance(data, ElementClass):
-			data = tostring(data)
+			data = tostring(data, encoding='utf-8', pretty_print=True)
 		if isinstance(data, unicode):
 			return data.encode('utf-8')
 		return data

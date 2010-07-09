@@ -79,12 +79,13 @@ class ZipPackage(Package):
 			if name == '/_rels/.rels':
 				continue
 			part = self[name]
-			content = part.dump()
-			if not content:
-				# silently ignore any content that doesn't actually
-				#  contain any content.
-				continue
-			zf.write_part(to_zip_name(name), content)
+			try:
+				zf.write_part(to_zip_name(name), part.dump())
+			except BaseException:
+				# silently ignore any part that fails to generate any
+				#  content.
+				pass
+
 
 	def _get_matching_segments(self, zf, name):
 		"""
