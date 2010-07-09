@@ -29,7 +29,8 @@ class Relational(object):
 	"A mixin class for packages and parts; both support relationships."
 	def relate(self, part, id=None):
 		"""Relate this package component to the supplied part."""
-		name = part.name.lstrip(self.base).lstrip('/')
+		assert part.name.startswith(self.base)
+		name = part.name[len(self.base):].lstrip('/')
 		rel = Relationship(self, name, part.rel_type, id=id)
 		self.relationships.add(rel)
 		return rel
@@ -142,6 +143,7 @@ class Package(DictMixin, Relational):
 		part = cls(self, name)
 		part.load(data)
 		self[name] = part
+		return part
 
 	def __repr__(self):
 		return "Package-%s" % id(self)

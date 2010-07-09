@@ -49,8 +49,8 @@ class ZipPackage(Package):
 					continue
 				target_path = to_zip_name(pname)
 				data = "".join(self._get_matching_segments(zf, target_path))
-				self._load_part(rel.type, pname, data)
-				ropen(self[pname])
+				new_part = self._load_part(rel.type, pname, data)
+				if new_part: ropen(new_part)
 		ropen(self)
 		zf.close()
 
