@@ -11,4 +11,10 @@ setup(
 	tests_require=[
 		'py.test>=1.0',
 	],
+	entry_points = {
+		'console_scripts': [
+			'part-edit = openpack.editor:part_edit_cmd',
+			'zip-listdir = openpack.editor:pack_dir_cmd',
+			],
+	},
 )
