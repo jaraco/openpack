@@ -6,14 +6,17 @@ import inspect
 import subprocess
 from zipfile import ZipFile
 
+from lxml import etree
+
 from .zippack import ZipPackage as Package
 
 def part_edit_cmd():
 	'Edit a part from an OOXML Package without unzipping it'
 	parser = argparse.ArgumentParser(description=inspect.getdoc(part_edit_cmd))
 	parser.add_argument('path', help='Path to part (including path to zip file, i.e. ./file.zipx/part)')
+	parser.add_argument('--reformat-xml', action='store_true', help='run the content through an XML pretty-printer first for improved editability')
 	args = parser.parse_args()
-	part_edit(args.path)
+	part_edit(args.path, args.reformat_xml)
 
 def pack_dir_cmd():
 	'List the contents of a subdirectory of a zipfile'
@@ -60,15 +63,18 @@ class EditableFile(object):
 		# for now, assume path is XML
 		return os.environ.get('XML_EDITOR', os.environ.get('EDITOR', 'edit'))
 		
-def part_edit(path):
+def part_edit(path, reformat_xml):
 	file, ipath = find_file(path)
 	pkg = Package.from_file(file)
 	part = pkg['/'+ipath]
-	ef = EditableFile(part.dump())
+	data = part.dump()
+	if reformat_xml:
+		data = etree.tostring(etree.fromstring(data), pretty_print=True)
+	ef = EditableFile(data)
 	ef.edit(ipath)
 	if ef.changed:
 		part.load(ef.data)
-	pkg.save()
+		pkg.save()
 
 def list_contents(path):
 	file, target_path = find_file(path)
