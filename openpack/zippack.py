@@ -55,12 +55,20 @@ class ZipPackage(Package):
 		zf.close()
 
 	def save(self, target=None):
+		"""
+		Save this package to target, which should be a filename or open
+		file stream. If target is not supplied, and this package has a
+		filename attribute (such as when this package was created from
+		an existing file), it will be used.
+		"""
 		target = target or getattr(self, 'filename', None)
+		if isinstance(target, basestring):
+			self.filename = target
+			target = open(target, 'wb')
 		if target is None:
 			msg = "Target filename required if %s was not opened from a file" % self.__class__.__name__
 			raise ValueError(msg)
-		self._store(open(target, 'wb'))
-		self.filename = target
+		self._store(target)
 
 	def as_stream(self):
 		"""

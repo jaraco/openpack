@@ -1,0 +1,16 @@
+0.4
+~~~
+
+In 0.4, many of the interfaces changed to better suit testing and other
+applications of the package. Here are some of the most prominent changes
+to the public API:
+
+* `name` parameter was removed from package initiation.
+* packages and zip packages can now be constructed from a file or from
+  a stream using classmethods `from_file` or `from_stream`.
+* packages now only have a filename attribute if they were loaded from
+  a file or previously saved to a file.
+* Packages no longer require handlers to determine which Part class to
+  use when de-serializing a package. Parts are now self-registering by
+  content-type. The only caveat is the requisite Part classes must be
+  loaded (imported) before the Document is loaded.

@@ -63,7 +63,14 @@ def test_save(writable_filename):
 	pack.relate(p)
 	part.data = '<test>hi there</test>'
 	pack.save(writable_filename)
-	
+
+def test_save_to_stream():
+	pack = ZipPackage()
+	part = p = SamplePart(pack, '/test/part.xml')
+	pack.add(p)
+	part.data = '<test>hi there</test>'
+	pack.save(StringIO())
+
 def test_create_package_from_existing_file(zippack_sample_filename):
 	pack = ZipPackage.from_file(zippack_sample_filename)
 
