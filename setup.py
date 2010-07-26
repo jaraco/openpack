@@ -2,8 +2,8 @@ from setuptools import setup
 
 setup(
 	name="openpack",
-	author="Christian Wyglendowski (YouGov)",
-	version="0.4-dev",
+	author="Christian Wyglendowski (YouGov), Jason R. Coombs (YouGov)",
+	version="0.4",
 	packages=['openpack'],
 	install_requires=[
 		'lxml',
