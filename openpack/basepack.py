@@ -280,7 +280,7 @@ class Relationship(object):
 		self.id = self._validate_id(id)
 		self.mode = self._validate_mode(mode or "Internal")
 		self.type = reltype
-   
+
 	def __repr__(self):
 		args = (self.source, self.target, self.type, self.id, self.mode)
 		return "Relationship(%r, %r, %r, %r, %r)" % args
@@ -337,7 +337,7 @@ class Relationships(Part):
 		def __set__(self, instance, value):
 			return
 	relationships = relationships()
-  
+
 	def dump(self):
 		rels = Element(self.xmlns + 'Relationships', nsmap={None:self.xmlns.strip('{}')})
 		for rel in self:

@@ -68,7 +68,10 @@ class EditableFile(object):
 def part_edit(path, reformat_xml):
 	file, ipath = find_file(path)
 	pkg = Package.from_file(file)
-	part = pkg['/'+ipath]
+	if ipath.startswith('[Content-Types]'):
+		part = pkg.content_types
+	else:
+		part = pkg['/'+ipath]
 	data = part.dump()
 	if reformat_xml:
 		data = etree.tostring(etree.fromstring(data), pretty_print=True)
