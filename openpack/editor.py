@@ -3,6 +3,7 @@ from __future__ import with_statement
 import argparse
 import tempfile
 import os
+import sys
 import posixpath
 import inspect
 import subprocess
@@ -54,7 +55,13 @@ class EditableFile(object):
 		with self:
 			editor = self.get_editor(ipath)
 			cmd = [editor, self.name]
-			if subprocess.call(cmd) != 0: return
+			try:
+				res = subprocess.call(cmd)
+			except Exception, e:
+				print("Error launching editor %(editor)s" % vars())
+				print(e)
+				return
+			if res != 0: return
 			new_data = self.read()
 			if new_data != self.data:
 				self.changed = True
@@ -62,8 +69,14 @@ class EditableFile(object):
 
 	@staticmethod
 	def get_editor(filepath):
-		# for now, assume path is XML
-		return os.environ.get('XML_EDITOR', os.environ.get('EDITOR', 'edit'))
+		"""
+		Give preference to an XML_EDITOR or EDITOR defined in the
+		environment. Otherwise use notepad on Windows and edit on other
+		platforms.
+		"""
+		default_editor = ['edit', 'notepad'][sys.platform.startswith('win32')]
+		return os.environ.get('XML_EDITOR',
+			os.environ.get('EDITOR', default_editor))
 		
 def part_edit(path, reformat_xml):
 	file, ipath = find_file(path)
