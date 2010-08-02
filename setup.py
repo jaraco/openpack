@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
 	name="openpack",
 	author="Christian Wyglendowski (YouGov), Jason R. Coombs (YouGov)",
-	version="0.4.1-dev",
+	version="0.4.1",
 	packages=['openpack'],
 	install_requires=[
 		'lxml',
