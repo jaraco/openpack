@@ -4,6 +4,7 @@ setup(
 	name="openpack",
 	author="Christian Wyglendowski (YouGov), Jason R. Coombs (YouGov)",
 	version="0.4.2-dev",
+	long_description=open("README").read(),
 	packages=['openpack'],
 	install_requires=[
 		'lxml',

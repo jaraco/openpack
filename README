@@ -1,0 +1,20 @@
+Openpack
+==============
+
+.. contents::
+
+Status and License
+------------------
+
+``openpack`` provides base functionality for working with the `Open
+Office XML (OOXML) <http://en.wikipedia.org/wiki/Office_Open_XML>`_
+format in Python.
+
+``openpack`` is Copyright (c) 2010 by YouGov Plc. under `this license
+<http://bitbucket.org/yougov/openpack/raw/36514c7ce217/LICENSE>`_.
+
+Changes
+-------
+
+For the list of changes, see `CHANGES in the repository
+<http://bitbucket.org/yougov/openpack/src/tip/CHANGES>`_.
