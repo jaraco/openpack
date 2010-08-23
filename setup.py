@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
 	name="openpack",
 	author="Christian Wyglendowski (YouGov), Jason R. Coombs (YouGov)",
-	version="0.4.2-dev",
+	use_hg_version=True,
 	long_description=open("README").read(),
 	packages=['openpack'],
 	install_requires=[
@@ -18,4 +18,7 @@ setup(
 			'zip-listdir = openpack.editor:pack_dir_cmd',
 			],
 	},
+	setup_requires = [
+		'hgtools >= 0.4.7',
+	],
 )
