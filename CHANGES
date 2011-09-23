@@ -1,3 +1,10 @@
+1.0
+~~~
+
+As YouGov is adopting many of the principles of semver, and openpack is
+stable for many months, we're declaring it suitable for a 1.0 release.
+This release is functionally identical to 0.4.1.
+
 0.4
 ~~~
 
