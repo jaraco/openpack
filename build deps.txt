@@ -1,0 +1,2 @@
+libxslt-dev # for lxml
+python2.7-dev
