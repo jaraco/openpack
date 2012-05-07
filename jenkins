@@ -1,9 +1,0 @@
-sudo aptitude install -y python2.7-dev libxslt-dev # for lxml
-
-virtualenv --no-site-packages env
-
-env/bin/python setup.py develop
-env/bin/python runtests.py --verbose --ignore env --junitxml="test results.xml"
-
-sudo aptitude remove -y python2.7-dev libxslt-dev
-
