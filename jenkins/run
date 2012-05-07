@@ -1,0 +1,5 @@
+#!/bin/bash -e
+virtualenv env
+
+env/bin/python setup.py develop
+env/bin/python runtests.py --verbose --ignore env --junitxml="test results.xml"
