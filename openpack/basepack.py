@@ -14,15 +14,18 @@ from .util import validator, parse_tag, get_ext
 
 log = logging.getLogger(__name__)
 
+### even though Element looks like a class name, it's actually a function. To
+#   get the actual class, construct an instance and grab its class.
 ElementClass = Element('__').__class__
 
-ooxml_namespaces = {
-	'cp':'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
-	'dc':'http://purl.org/dc/elements/1.1/',
-	'dcterms':'http://purl.org/dc/terms/',
-	'dcmitype':'http://purl.org/dc/dcmitype/',
-	'xsi':'http://www.w3.org/2001/XMLSchema-instance',
-}
+ooxml_namespaces = dict(
+	cp = 'http://schemas.openxmlformats.org/package/2006/metadata/'
+		'core-properties',
+	dc = 'http://purl.org/dc/elements/1.1/',
+	dcterms = 'http://purl.org/dc/terms/',
+	dcmitype = 'http://purl.org/dc/dcmitype/',
+	xsi = 'http://www.w3.org/2001/XMLSchema-instance',
+)
 
 class Relational(object):
 	"A mixin class for packages and parts; both support relationships."
@@ -321,7 +324,8 @@ class Relationships(Part):
 
 	def __init__(self, package, source, encoding=None):
 		"""
-		@param source package or part where from which the relationship is derived
+		@param source package or part where from which the relationship is
+		       derived
 		@ptype source Package or Part
 		"""
 		name = self._name_from_source(source)
@@ -340,7 +344,8 @@ class Relationships(Part):
 	relationships = relationships()
 
 	def dump(self):
-		rels = Element(self.xmlns + 'Relationships', nsmap={None:self.xmlns.strip('{}')})
+		rels = Element(self.xmlns + 'Relationships',
+			nsmap={None: self.xmlns.strip('{}')})
 		for rel in self:
 			rels.append(Element(
 				'Relationship',
@@ -417,7 +422,8 @@ class ContentTypes(set):
 		return cls.from_element(elem)
 
 	def to_element(self):
-		elem = Element(self.xmlns + 'Types', nsmap={None:self.xmlns.strip('{}')})
+		elem = Element(self.xmlns + 'Types',
+			nsmap={None: self.xmlns.strip('{}')})
 		elem.extend(ct.to_element() for ct in self)
 		return elem
 
@@ -532,8 +538,10 @@ vars(E).update(dict(
 	))
 
 class CoreProperties(Part):
-	content_type = "application/vnd.openxmlformats-package.core-properties+xml"
-	rel_type = "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties"
+	content_type = ("application/"
+		"vnd.openxmlformats-package.core-properties+xml")
+	rel_type = ("http://schemas.openxmlformats.org/package/2006/"
+		"relationships/metadata/core-properties")
 	title = ''
 	subject = ''
 	creator = ''
