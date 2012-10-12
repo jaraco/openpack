@@ -538,6 +538,9 @@ E = type('E', (object,), dict(
 ))
 
 class CoreProperties(Part):
+	"""
+	Core properties on a package, has attributes like 'title', and 'subject'
+	"""
 	content_type = ("application/"
 		"vnd.openxmlformats-package.core-properties+xml")
 	rel_type = ("http://schemas.openxmlformats.org/package/2006/"
