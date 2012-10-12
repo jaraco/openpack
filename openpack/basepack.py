@@ -9,6 +9,7 @@ from UserDict import DictMixin
 from collections import defaultdict
 
 from lxml.etree import Element, fromstring, tostring
+from lxml.builder import ElementMaker as _ElementMaker
 
 from .util import validator, parse_tag, get_ext
 
@@ -529,13 +530,12 @@ class Override(ContentType):
 ContentType.Override = Override
 del Override
 
-from lxml.builder import ElementMaker as _ElementMaker
-class E:
-	pass
-vars(E).update(dict(
+# Construct E, a convient namespace for making elements in the OOXML
+# namespaces.
+E = type('E', (object,), dict(
 	(key, _ElementMaker(namespace=namespace, nsmap=ooxml_namespaces))
 	for key, namespace in ooxml_namespaces.items()
-	))
+))
 
 class CoreProperties(Part):
 	content_type = ("application/"
