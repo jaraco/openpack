@@ -5,13 +5,12 @@ import os
 import posixpath
 import datetime
 import logging
-from string import Template
 from UserDict import DictMixin
 from collections import defaultdict
 
-from lxml.etree import Element, ElementTree, fromstring, tostring 
+from lxml.etree import Element, fromstring, tostring
 
-from util import validator, parse_tag, get_ext
+from .util import validator, parse_tag, get_ext
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +55,7 @@ class Package(DictMixin, Relational):
 	 * Relationships
 	 * Content-Types
 	 * Parts
-	
+
 	Subclasses should overload open(...) and save(...) to read and write
 	data to and from various physical package formats.
 
@@ -71,7 +70,7 @@ class Package(DictMixin, Relational):
 		self[rels.name] = rels
 		self.content_types = ContentTypes()
 		self.content_types.add(ContentType.Default(rels.content_type, 'rels'))
-	
+
 	def __setitem__(self, name, part):
 		self._validate_part(name, part)
 		self.parts[part.name] = part
@@ -107,7 +106,7 @@ class Package(DictMixin, Relational):
 
 	@validator
 	def _validate_part(self, name, part):
-		# 8.1.1.1 -   A package implementer shall neither create nor 
+		# 8.1.1.1 -   A package implementer shall neither create nor
 		# recognize a part with a part name derived from another part name by
 		# appending segments to it
 		for cname in self:
@@ -121,11 +120,13 @@ class Package(DictMixin, Relational):
 
 	def open(self):
 		raise NotImplementedError("Subclasses must implement open.")
-		# something like this ...
+		# something like this:
+		"""
 		self._load_content_types(ct_xml)
 		self._load_package_rels(rel_xml)
 		for rel in self.relationships:
 			self._load_part(rel.name, some_file_like_object)
+		"""
 
 	def _load_content_types(self, source):
 		"""Load up the content_types object with value from source XML."""
@@ -185,7 +186,7 @@ class RelationshipTypeHandler(type):
 	A metaclass designed to register new Part classes that handle
 	particular relationship types. Whenever a new subclass of Part is
 	created, its rel_type attribute will be mapped to that class.
-	
+
 	Subsequently, Part.classes_by_rel_type will be a mapping of
 	relationship-type to the appropriate class for that rel-type.
 	"""
@@ -210,7 +211,7 @@ class Part(Relational):
 	Parts are the building blocks of OOXML files.
 
 	All Part subclasses need to define their content-type in a
-	content_type attribute.  Most will also need a relationship-type 
+	content_type attribute.  Most will also need a relationship-type
 	(defined in the rel_type attribute).  See the documentation for the
 	part that you are implementing for the proper values for those attributes.
 	"""
@@ -272,7 +273,7 @@ class Relationship(object):
 	target : the URL for the target part
 	reltype : the type that defines the relationship
 	id : a unique identifier for this relationship
-	mode : should be one of "Internal" or "External" 
+	mode : should be one of "Internal" or "External"
 	"""
 	def __init__(self, source, target, reltype, id=None, mode=None):
 		self.source = self._validate_source(source)
@@ -289,7 +290,7 @@ class Relationship(object):
 	def _validate_source(self, source):
 		assert isinstance(source, (Package, Part))
 		return source
-	
+
 	@validator
 	def _validate_target(self, target):
 		assert isinstance(target, basestring), "target must be a part name"
@@ -304,9 +305,9 @@ class Relationship(object):
 	def _validate_id(self, id):
 		if id is None:
 			return self._generate_id()
-		# TODO: The Id type is xsd:ID and it shall conform to the naming 
-		# restrictions for xsd:ID as specified in the W3C Recommendation 
-		# "XML Schema Part 2: Datatypes."  
+		# TODO: The Id type is xsd:ID and it shall conform to the naming
+		# restrictions for xsd:ID as specified in the W3C Recommendation
+		# "XML Schema Part 2: Datatypes."
 		return id
 
 	def _generate_id(self):
@@ -393,7 +394,7 @@ class Relationships(Part):
 
 class ContentTypes(set):
 	"""A container for managing Package content types."""
-	
+
 	xmlns = '{http://schemas.openxmlformats.org/package/2006/content-types}'
 
 	def add_override(self, part):
@@ -428,12 +429,12 @@ class ContentTypes(set):
 
 	def _item_map(self, class_filter=object):
 		return dict(
-			(item.key, item) 
+			(item.key, item)
 			for item in self
 			if isinstance(item, class_filter)
 			)
 	items = property(_item_map)
-	
+
 	def find_for(self, name):
 		"""
 		Get the correct content type for a given name
@@ -529,7 +530,7 @@ vars(E).update(dict(
 	(key, _ElementMaker(namespace=namespace, nsmap=ooxml_namespaces))
 	for key, namespace in ooxml_namespaces.items()
 	))
-	
+
 class CoreProperties(Part):
 	content_type = "application/vnd.openxmlformats-package.core-properties+xml"
 	rel_type = "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties"
@@ -572,7 +573,7 @@ class CoreProperties(Part):
 		def parse_datetime(str):
 			try:
 				result = datetime.datetime.strptime(str, self.dt_format)
-			except ValueError :
+			except ValueError:
 				result = str
 			return result
 		set_attr_if_tag(DCTERMS('created'), transform=parse_datetime)
