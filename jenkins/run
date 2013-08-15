@@ -1,2 +1,2 @@
 #!/bin/bash -e
-python2.7 setup.py ptr --junitxml="test results.xml"
+python2.7 setup.py ptr --addopts='--junitxml="test results.xml"'
