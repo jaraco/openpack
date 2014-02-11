@@ -1,4 +1,4 @@
-from zippack import ZipPackage
+from .zippack import ZipPackage
 
 class OfficePackage(ZipPackage):
 	"""
@@ -10,5 +10,3 @@ class OfficePackage(ZipPackage):
 	@property
 	def start_part(self):
 		return self.related(self.main_rel)[0]
-
-

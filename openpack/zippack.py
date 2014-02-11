@@ -1,4 +1,3 @@
-import os
 import time
 import posixpath
 import functools
@@ -6,7 +5,8 @@ import io
 from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
 
 import six
-from basepack import Package, Part, Relationship, Relationships
+
+from .basepack import Package, Part, Relationship, Relationships
 
 def to_zip_name(name):
 	"""
