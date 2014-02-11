@@ -5,6 +5,7 @@ import functools
 import io
 from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
 
+import six
 from basepack import Package, Part, Relationship, Relationships
 
 def to_zip_name(name):
@@ -61,7 +62,7 @@ class ZipPackage(Package):
 		an existing file), it will be used.
 		"""
 		target = target or getattr(self, 'filename', None)
-		if isinstance(target, basestring):
+		if isinstance(target, six.string_types):
 			self.filename = target
 			target = open(target, 'wb')
 		if target is None:
@@ -92,7 +93,6 @@ class ZipPackage(Package):
 				# silently ignore any part that fails to generate any
 				#  content.
 				pass
-
 
 	def _get_matching_segments(self, zf, name):
 		"""
@@ -127,6 +127,5 @@ class _ZipPackageZipFile(ZipFile):
 
 if __name__ == '__main__':
 	zp = ZipPackage.from_file('../data/whatever.docx')
-	print zp
-	print zp.relationships
-
+	print(zp)
+	print(zp.relationships)

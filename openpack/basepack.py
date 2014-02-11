@@ -8,6 +8,7 @@ import logging
 import collections
 from collections import defaultdict
 
+import six
 from lxml.etree import Element, fromstring, tostring
 from lxml.builder import ElementMaker as _ElementMaker
 
@@ -268,7 +269,7 @@ class Part(Relational):
 		data = self.data
 		if isinstance(data, ElementClass):
 			data = tostring(data, encoding='utf-8', pretty_print=True)
-		if isinstance(data, unicode):
+		if isinstance(data, six.text_type):
 			return data.encode('utf-8')
 		return data
 
@@ -302,7 +303,7 @@ class Relationship(object):
 
 	@validator
 	def _validate_target(self, target):
-		assert isinstance(target, basestring), "target must be a part name"
+		assert isinstance(target, six.string_types), "target must be a part name"
 		return target
 
 	@validator

@@ -19,6 +19,7 @@ setup_params = dict(
 	},
 	install_requires=[
 		'lxml',
+		'six',
 	],
 	tests_require=[
 		'pytest',
