@@ -113,8 +113,8 @@ class TestContentTypes:
 		cts.add(ContentType.Default('application/xml', 'xml'))
 		cts.add(ContentType.Default('application/xml', 'xml'))
 		assert len(cts) == 1
-		assert len(re.findall('application/xml', cts.dump())) == 1
-		assert len(re.findall('Extension="xml"', cts.dump())) == 1
+		assert len(re.findall(b'application/xml', cts.dump())) == 1
+		assert len(re.findall(b'Extension="xml"', cts.dump())) == 1
 
 class TestDefaultNamedPart:
 	def test_default_named_part(self):
