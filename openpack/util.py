@@ -4,7 +4,7 @@ def validator(f, etype=ValueError):
 	def _validate(*args, **params):
 		try:
 			return f(*args, **params)
-		except AssertionError, e:
+		except AssertionError as e:
 			raise etype(*e.args)
 	return _validate
 
@@ -16,7 +16,7 @@ def parse_tag(t):
 def get_ext(name):
 	"""
 	Return the extension only for a name (like a filename)
-	
+
 	>>> get_ext('foo.bar')
 	'bar'
 	>>> get_ext('.only')
@@ -27,7 +27,7 @@ def get_ext(name):
 	''
 	>>> get_ext('emptyext.')
 	''
-	
+
 	Note that for any non-empty string, the result will never be the
 	same as the input. This is a useful property for basepack.
 	"""

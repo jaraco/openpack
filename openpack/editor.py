@@ -57,7 +57,7 @@ class EditableFile(object):
 			cmd = [editor, self.name]
 			try:
 				res = subprocess.call(cmd)
-			except Exception, e:
+			except Exception as e:
 				print("Error launching editor %(editor)s" % vars())
 				print(e)
 				return
@@ -77,7 +77,7 @@ class EditableFile(object):
 		default_editor = ['edit', 'notepad'][sys.platform.startswith('win32')]
 		return os.environ.get('XML_EDITOR',
 			os.environ.get('EDITOR', default_editor))
-		
+
 def part_edit(path, reformat_xml):
 	file, ipath = find_file(path)
 	pkg = Package.from_file(file)
@@ -126,12 +126,12 @@ def find_file(path):
 	"""
 	Given a path to a part in a zip file, return a path to the file and
 	the path to the part.
-	
-	Assuming /foo.zipx exists as a file, 
-	
+
+	Assuming /foo.zipx exists as a file,
+
 	>>> find_file('/foo.zipx/dir/part') # !doctest.SKIP
 	('/foo.zipx', '/dir/part')
-	
+
 	>>> find_file('/foo.zipx') # !doctest.SKIP
 	('/foo.zipx', '')
 	"""
