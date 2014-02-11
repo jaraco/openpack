@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import tempfile
 import pkg_resources
@@ -97,9 +99,9 @@ def test_create_and_open(writable_filename):
 	pack = ZipPackage.from_file(writable_filename)
 	assert '/test/part.xml' in pack
 	part = pack['/test/part.xml']
-	assert part.data == '<test>hi there</test>'
-	rendered_children = io.BytesIO()
-	print >> rendered_children, pack.relationships.children
+	assert part.data == '<test>hi there</test>'.encode('ascii')
+	rendered_children = io.StringIO()
+	print(pack.relationships.children, file=rendered_children)
 	relations = pack.related('http://polimetrix.com/relationships/test')
 	assert len(relations) == 1
 	assert relations[0] == part
