@@ -5,6 +5,7 @@ import os
 import posixpath
 import datetime
 import logging
+import collections
 from collections import defaultdict
 
 from lxml.etree import Element, fromstring, tostring
@@ -51,7 +52,7 @@ class Relational(object):
 		#  the parameter source below is a Part object
 		self.relationships.load(source=self, data=source)
 
-class Package(dict, Relational):
+class Package(collections.MutableMapping, Relational):
 	"""A base class for an OPC package.
 
 	Handles processing provided XML into the core components of a Package:
@@ -89,6 +90,12 @@ class Package(dict, Relational):
 
 	def __delitem__(self, name):
 		del self.parts[name]
+
+	def __iter__(self):
+		return iter(self.parts)
+
+	def __len__(self):
+		return len(self.parts)
 
 	def keys(self):
 		return self.parts.keys()
