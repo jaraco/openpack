@@ -5,7 +5,6 @@ import os
 import posixpath
 import datetime
 import logging
-from UserDict import DictMixin
 from collections import defaultdict
 
 from lxml.etree import Element, fromstring, tostring
@@ -52,7 +51,7 @@ class Relational(object):
 		#  the parameter source below is a Part object
 		self.relationships.load(source=self, data=source)
 
-class Package(DictMixin, Relational):
+class Package(dict, Relational):
 	"""A base class for an OPC package.
 
 	Handles processing provided XML into the core components of a Package:

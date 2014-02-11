@@ -2,9 +2,8 @@ import os
 import time
 import posixpath
 import functools
+import io
 from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
-try: from cStringIO import StringIO
-except ImportError: from StringIO import StringIO
 
 from basepack import Package, Part, Relationship, Relationships
 
@@ -14,7 +13,7 @@ def to_zip_name(name):
 	prefer them without. This method strips the leading slash.
 	"""
 	return name.lstrip('/')
-	
+
 class ZipPackage(Package):
 	@classmethod
 	def from_file(cls, filename):
@@ -74,7 +73,7 @@ class ZipPackage(Package):
 		"""
 		Return a zipped package as a readable stream
 		"""
-		stream = StringIO()
+		stream = io.BytesIO()
 		self._store(stream)
 		stream.seek(0)
 		return stream

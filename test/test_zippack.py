@@ -1,10 +1,7 @@
-try:
-	from cStringIO import StringIO
-except ImportError:
-	from StringIO import StringIO
 import os
 import tempfile
 import pkg_resources
+import io
 
 import py.test
 
@@ -20,7 +17,8 @@ def pytest_funcarg__writable_filename(request):
 	be sure it's cleaned up afterward.
 	"""
 	fobj, name = tempfile.mkstemp()
-	os.close(fobj); os.remove(name)
+	os.close(fobj)
+	os.remove(name)
 	def remove_if_exists():
 		if os.path.exists(name):
 			os.remove(name)
@@ -39,7 +37,7 @@ def test_create():
 	file system references.
 	"""
 	pack = ZipPackage()
-	
+
 def test_add_part():
 	pack = ZipPackage()
 	part = p = SamplePart(pack, '/test/part.xml')
@@ -54,7 +52,7 @@ def test_write_to_part():
 	pack.content_types.add_override(p)
 	pack.relate(p)
 	part.data = '<test>hi there</test>'
-	
+
 def test_save(writable_filename):
 	pack = ZipPackage()
 	part = p = SamplePart(pack, '/test/part.xml')
@@ -69,7 +67,7 @@ def test_save_to_stream():
 	part = p = SamplePart(pack, '/test/part.xml')
 	pack.add(p)
 	part.data = '<test>hi there</test>'
-	pack.save(StringIO())
+	pack.save(io.BytesIO())
 
 def test_create_package_from_existing_file(zippack_sample_filename):
 	pack = ZipPackage.from_file(zippack_sample_filename)
@@ -79,12 +77,12 @@ def test_create_package_from_stream(zippack_sample):
 	Not everybody wants to create a package from a file system object.
 	Make sure the packages can be created from a stream.
 	"""
-	input_stream = StringIO(zippack_sample)
+	input_stream = io.BytesIO(zippack_sample)
 	pack = ZipPackage.from_stream(input_stream)
 
 def test_store_empty_package():
 	pack = ZipPackage()
-	data = StringIO()
+	data = io.BytesIO()
 	pack._store(data)
 	data.seek(0)
 	pack = ZipPackage.from_stream(data)
@@ -100,7 +98,7 @@ def test_create_and_open(writable_filename):
 	assert '/test/part.xml' in pack
 	part = pack['/test/part.xml']
 	assert part.data == '<test>hi there</test>'
-	rendered_children = StringIO()
+	rendered_children = io.BytesIO()
 	print >> rendered_children, pack.relationships.children
 	relations = pack.related('http://polimetrix.com/relationships/test')
 	assert len(relations) == 1
@@ -123,7 +121,7 @@ def test_nested_content_loads():
 	package.content_types.add_override(sub)
 	main.relate(sub)
 	sub.data = '<test>this is the sub module</test>'
-	serialized = StringIO()
+	serialized = io.BytesIO()
 	package._store(serialized)
 	serialized.seek(0)
 	del package, main, sub
