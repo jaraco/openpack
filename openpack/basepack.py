@@ -6,6 +6,7 @@ import posixpath
 import datetime
 import logging
 import collections
+import codecs
 from collections import defaultdict
 
 import six
@@ -321,7 +322,7 @@ class Relationship(object):
 		return id
 
 	def _generate_id(self):
-		return "d%s" % os.urandom(4).encode('hex')
+		return "d%s" % codecs.encode(os.urandom(4), 'hex')
 
 class Relationships(Part):
 	"""A collection of Package or Part Relationships."""
