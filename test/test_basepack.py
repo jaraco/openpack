@@ -10,7 +10,7 @@ class TestBasicPart(object):
 	def test_good_names(self):
 		for n in ('/abc', '/foo/bar', '/foo-1/bar.xml'):
 			yield self.check_name, n
-	
+
 	def check_name(self, name, should_fail=False):
 		if should_fail:
 			py.test.raises(ValueError, Part, None, name)
@@ -54,12 +54,12 @@ class TestBasicPackage(object):
 		self.test_content_types()
 		self.part = part = Part(self.pack, '/foo')
 		self.pack[part.name] = part
-	
+
 	def test_relate_part(self):
 		self.test_add_part()
 		r = Relationship(self.pack, '/foo', 'http://polimetrix.com/part')
 		self.pack.relationships.add(r)
-	
+
 	def test_related(self):
 		self.test_relate_part()
 		assert self.pack.related('http://polimetrix.com/part')[0] == self.part
@@ -73,12 +73,12 @@ class TestBasicPackage(object):
 		assert ct is not None
 		assert ct.key == 'vpart'
 		assert ct.name == p.content_type
-		
+
 	def test_add_no_override(self):
 		self.test_create()
 		p = SamplePart(self.pack, '/pmx/samp.main', content_type='app/pmxmain+xml')
 		self.pack.add(p)
-		ct = self.pack.content_types.find_for('/pmx/samp.main') 
+		ct = self.pack.content_types.find_for('/pmx/samp.main')
 		assert isinstance(ct, ContentType.Override)
 		assert ct is not None
 		assert ct.key == p.name
@@ -89,20 +89,23 @@ class TestBasicPackage(object):
 		part = SamplePart(pack, '/pmx/samp.main')
 		pack.add(part)
 		parts = pack.get_parts_by_content_type(part.content_type)
-		assert parts.next() is part
-		py.test.raises(StopIteration, parts.next)
+		assert next(parts) is part
+		with py.test.raises(StopIteration):
+			next(parts)
 		ct = pack.content_types.find_for(part.name)
 		parts = pack.get_parts_by_content_type(ct)
-		assert parts.next() is part
-		py.test.raises(StopIteration, parts.next)
+		assert next(parts) is part
+		with py.test.raises(StopIteration):
+			next(parts)
 
 	def test_get_parts_by_class(self):
 		pack = Package()
 		part = SamplePart(pack, '/pmx/samp.main')
 		pack.add(part)
 		parts = pack.get_parts_by_class(SamplePart)
-		assert parts.next() is part
-		py.test.raises(StopIteration, parts.next)
+		assert next(parts) is part
+		with py.test.raises(StopIteration):
+			next(parts)
 
 class TestContentTypes:
 	def test_no_duplicates_in_output(self):

@@ -178,7 +178,6 @@ class Package(collections.MutableMapping, Relational):
 
 	@property
 	def core_properties(self):
-		next = lambda item: item.next()
 		return next(self.get_parts_by_class(CoreProperties))
 
 class DefaultNamed(object):
