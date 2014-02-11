@@ -217,6 +217,7 @@ class RelationshipTypeHandler(type):
 			cls.classes_by_rel_type[rt] = cls
 		return cls
 
+@six.add_metaclass(RelationshipTypeHandler)
 class Part(Relational):
 	"""
 	Parts are the building blocks of OOXML files.
@@ -226,7 +227,6 @@ class Part(Relational):
 	(defined in the rel_type attribute).  See the documentation for the
 	part that you are implementing for the proper values for those attributes.
 	"""
-	__metaclass__ = RelationshipTypeHandler
 	content_type = None
 	rel_type = None
 
