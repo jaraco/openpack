@@ -129,7 +129,6 @@ def test_nested_content_loads():
 	del package, main, sub
 	package = ZipPackage.from_stream(serialized)
 	assert '/test/main.xml' in package
-	main = package['/test/main.xml']
+	assert package['/test/main.xml']
 	sub = package['/test/sub.xml']
-	assert 'sub module' in sub.data
-
+	assert b'sub module' in sub.data
