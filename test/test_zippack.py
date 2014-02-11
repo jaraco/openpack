@@ -101,7 +101,8 @@ def test_create_and_open(writable_filename):
 	part = pack['/test/part.xml']
 	assert part.data == '<test>hi there</test>'.encode('ascii')
 	rendered_children = io.StringIO()
-	print(pack.relationships.children, file=rendered_children)
+	out = six.text_type(pack.relationships.children)
+	print(out, file=rendered_children)
 	relations = pack.related('http://polimetrix.com/relationships/test')
 	assert len(relations) == 1
 	assert relations[0] == part
