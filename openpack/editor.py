@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 import argparse
 import tempfile
@@ -30,7 +30,7 @@ def pack_dir_cmd():
 	for item, is_file in sorted(list_contents(args.path)):
 		prefix = 'd ' if not is_file else '  '
 		msg = prefix + item
-		print msg
+		print(msg)
 
 class EditableFile(object):
 	def __init__(self, data=None):
@@ -140,7 +140,7 @@ def find_file(path):
 		"""
 		Enumerate the various combinations of file paths and part paths
 		"""
-		for n in xrange(len(path_components), 0, -1):
+		for n in range(len(path_components), 0, -1):
 			file_c = path_components[:n]
 			part_c = path_components[n:] or ['']
 			yield (os.path.join(*file_c), posixpath.join(*part_c))
