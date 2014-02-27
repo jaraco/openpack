@@ -323,7 +323,7 @@ class Relationship(object):
 
 	@staticmethod
 	def _generate_id():
-		return "d%s" % codecs.encode(os.urandom(4), 'hex')
+		return "d%s" % codecs.encode(os.urandom(4), 'hex').decode()
 
 class Relationships(Part):
 	"""A collection of Package or Part Relationships."""
