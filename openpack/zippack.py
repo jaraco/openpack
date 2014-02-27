@@ -6,7 +6,7 @@ from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
 
 import six
 
-from .basepack import Package, Part, Relationship, Relationships
+from .basepack import Package, Part, Relationships
 
 def to_zip_name(name):
 	"""
