@@ -129,3 +129,8 @@ class TestDefaultNamedPart:
 			pass
 		pack = Package()
 		py.test.raises(AttributeError, PartToTest, pack)
+
+class TestRelationship:
+	def test_id_generation(self):
+		candidate = Relationship._generate_id()
+		assert re.match('d[0-9a-f]{8,}', candidate)
