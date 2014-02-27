@@ -321,7 +321,8 @@ class Relationship(object):
 		# "XML Schema Part 2: Datatypes."
 		return id
 
-	def _generate_id(self):
+	@staticmethod
+	def _generate_id():
 		return "d%s" % codecs.encode(os.urandom(4), 'hex')
 
 class Relationships(Part):
