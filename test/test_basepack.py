@@ -1,5 +1,6 @@
-import py.test
 import re
+
+import pytest
 
 from common import SamplePart
 from openpack.basepack import (
@@ -15,20 +16,21 @@ class TestBasicPart(object):
 		for n in ('/abc', '/foo/bar', '/foo-1/bar.xml'):
 			yield self.check_name, n
 
-	def check_name(self, name, should_fail=False):
-		if should_fail:
-			py.test.raises(ValueError, Part, None, name)
-		else:
-			Part(None, name)
+	def check_name(self, name):
+		Part(None, name)
+
+	def check_name_fails(self, name):
+		with pytest.raises(ValueError):
+			self.check_name(name)
 
 	def test_bad_names(self):
 		for n in self.invalid_names:
-			yield self.check_name, n, True
+			yield self.check_name_fails, n
 
 	def test_reset_part_name_to_invalid_name(self):
 		part = SamplePart(None, '/foo')
 		for name in self.invalid_names:
-			py.test.raises(ValueError, setattr, part, 'name', name)
+			pytest.raises(ValueError, setattr, part, 'name', name)
 
 	def test_part_rels(self):
 		p = Part(None, '/word/document.xml')
@@ -36,7 +38,7 @@ class TestBasicPart(object):
 
 	def test_cant_dump_part_without_data(self):
 		part = Part(None, '/word/document.xml')
-		py.test.raises(BaseException, part.dump)
+		pytest.raises(BaseException, part.dump)
 
 class TestBasicPackage(object):
 	def test_create(self):
@@ -94,12 +96,12 @@ class TestBasicPackage(object):
 		pack.add(part)
 		parts = pack.get_parts_by_content_type(part.content_type)
 		assert next(parts) is part
-		with py.test.raises(StopIteration):
+		with pytest.raises(StopIteration):
 			next(parts)
 		ct = pack.content_types.find_for(part.name)
 		parts = pack.get_parts_by_content_type(ct)
 		assert next(parts) is part
-		with py.test.raises(StopIteration):
+		with pytest.raises(StopIteration):
 			next(parts)
 
 	def test_get_parts_by_class(self):
@@ -108,7 +110,7 @@ class TestBasicPackage(object):
 		pack.add(part)
 		parts = pack.get_parts_by_class(SamplePart)
 		assert next(parts) is part
-		with py.test.raises(StopIteration):
+		with pytest.raises(StopIteration):
 			next(parts)
 
 class TestContentTypes:
@@ -132,7 +134,7 @@ class TestDefaultNamedPart:
 		class PartToTest(DefaultNamed, Part):
 			pass
 		pack = Package()
-		py.test.raises(AttributeError, PartToTest, pack)
+		pytest.raises(AttributeError, PartToTest, pack)
 
 class TestRelationship:
 	def test_id_generation(self):
