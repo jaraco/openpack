@@ -121,6 +121,17 @@ class TestContentTypes:
 		assert len(re.findall(b'application/xml', cts.dump())) == 1
 		assert len(re.findall(b'Extension="xml"', cts.dump())) == 1
 
+	def test_case_insensitive(self):
+		cts = ContentTypes()
+		cts.add(ContentType.Default('application/xml', 'XML'))
+		ct = cts.find_for('foo.xml')
+		assert ct.name == 'application/xml'
+
+		cts = ContentTypes()
+		cts.add(ContentType.Default('application/xml', 'xml'))
+		ct = cts.find_for('foo.XML')
+		assert ct.name == 'application/xml'
+
 
 class TestDefaultNamedPart:
 	def test_default_named_part(self):
