@@ -19,7 +19,7 @@ class TestBasicPart(object):
 		if should_fail:
 			py.test.raises(ValueError, Part, None, name)
 		else:
-			p = Part(None, name)
+			Part(None, name)
 
 	def test_bad_names(self):
 		for n in self.invalid_names:
