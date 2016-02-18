@@ -34,7 +34,9 @@ class TestBasicPart(object):
 
 	def test_cant_dump_part_without_data(self):
 		part = Part(None, '/word/document.xml')
-		pytest.raises(BaseException, part.dump)
+		with pytest.raises(Exception):
+			part.dump()
+
 
 class TestBasicPackage(object):
 	def test_create(self):
@@ -109,6 +111,7 @@ class TestBasicPackage(object):
 		with pytest.raises(StopIteration):
 			next(parts)
 
+
 class TestContentTypes:
 	def test_no_duplicates_in_output(self):
 		cts = ContentTypes()
@@ -117,6 +120,7 @@ class TestContentTypes:
 		assert len(cts) == 1
 		assert len(re.findall(b'application/xml', cts.dump())) == 1
 		assert len(re.findall(b'Extension="xml"', cts.dump())) == 1
+
 
 class TestDefaultNamedPart:
 	def test_default_named_part(self):
@@ -130,7 +134,9 @@ class TestDefaultNamedPart:
 		class PartToTest(DefaultNamed, Part):
 			pass
 		pack = Package()
-		pytest.raises(AttributeError, PartToTest, pack)
+		with pytest.raises(AttributeError):
+			PartToTest(pack)
+
 
 class TestRelationship:
 	def test_id_generation(self):
