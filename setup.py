@@ -28,6 +28,7 @@ setup_params = dict(
 	install_requires=[
 		'lxml',
 		'six',
+		'jaraco.collections>=1.3.2',
 	],
 	tests_require=[
 		'pytest',

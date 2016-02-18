@@ -8,6 +8,7 @@ import logging
 import collections
 import codecs
 from collections import defaultdict
+from jaraco.collections import FoldedCaseKeyedDict
 
 import six
 from lxml.etree import Element, fromstring, tostring
@@ -443,11 +444,11 @@ class ContentTypes(set):
 		return cls(map(ContentType.from_element, elem))
 
 	def _item_map(self, class_filter=object):
-		return dict(
+		return FoldedCaseKeyedDict(
 			(item.key, item)
 			for item in self
 			if isinstance(item, class_filter)
-			)
+		)
 	items = property(_item_map)
 
 	def find_for(self, name):
