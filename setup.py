@@ -8,7 +8,7 @@ setup_params = dict(
 	author="Christian Wyglendowski (YouGov), Jason R. Coombs (YouGov)",
 	author_email="open.source@yougov.com",
 	url="https://bitbucket.org/yougov/openpack",
-	use_hg_version=True,
+	use_scm_version=True,
 	long_description=long_description,
 	packages=['openpack'],
 	license = 'MIT',
@@ -33,7 +33,7 @@ setup_params = dict(
 		'pytest',
 	],
 	setup_requires = [
-		'hgtools>=1.0',
+		'setuptools_scm',
 		'pytest-runner',
 	],
 )
