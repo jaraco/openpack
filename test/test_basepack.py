@@ -10,27 +10,23 @@ from openpack.basepack import (
 
 
 class TestBasicPart(object):
-	invalid_names = ('abc', '/abc/', '/foo/bar.', '/bar/./abc.xml')
+	good_names = '/abc', '/foo/bar', '/foo-1/bar.xml'
+	invalid_names = 'abc', '/abc/', '/foo/bar.', '/bar/./abc.xml'
 
-	def test_good_names(self):
-		for n in ('/abc', '/foo/bar', '/foo-1/bar.xml'):
-			yield self.check_name, n
-
-	def check_name(self, name):
+	@pytest.mark.parametrize("name", good_names)
+	def test_good_name(self, name):
 		Part(None, name)
 
-	def check_name_fails(self, name):
+	@pytest.mark.parametrize("name", invalid_names)
+	def test_bad_name(self, name):
 		with pytest.raises(ValueError):
-			self.check_name(name)
+			Part(None, name)
 
-	def test_bad_names(self):
-		for n in self.invalid_names:
-			yield self.check_name_fails, n
-
-	def test_reset_part_name_to_invalid_name(self):
+	@pytest.mark.parametrize("name", invalid_names)
+	def test_reset_part_name_to_invalid_name(self, name):
 		part = SamplePart(None, '/foo')
-		for name in self.invalid_names:
-			pytest.raises(ValueError, setattr, part, 'name', name)
+		with pytest.raises(ValueError):
+			setattr(part, 'name', name)
 
 	def test_part_rels(self):
 		p = Part(None, '/word/document.xml')
