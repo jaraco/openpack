@@ -2,7 +2,11 @@ import py.test
 import re
 
 from common import SamplePart
-from openpack.basepack import *
+from openpack.basepack import (
+	Part, Relationships, Relationship, Package,
+	ContentType, ContentTypes, DefaultNamed,
+)
+
 
 class TestBasicPart(object):
 	invalid_names = ('abc', '/abc/', '/foo/bar.', '/bar/./abc.xml')
