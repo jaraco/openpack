@@ -1,6 +1,6 @@
 import os
 
-with open(os.path.join(os.path.dirname(__file__), 'README')) as f:
+with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as f:
 	long_description = f.read()
 
 setup_params = dict(
