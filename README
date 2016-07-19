@@ -10,8 +10,8 @@ Status and License
 Office XML (OOXML) <http://en.wikipedia.org/wiki/Office_Open_XML>`_
 format in Python.
 
-``openpack`` is Copyright (c) 2010 by YouGov Plc. under `this license
-<http://bitbucket.org/yougov/openpack/raw/36514c7ce217/LICENSE>`_.
+``openpack`` is Copyright (c) 2010 by YouGov Plc. and released
+under the OSI MIT License.
 
 Introduction
 ------------
@@ -67,10 +67,3 @@ will be updated with the new content.
 
 The user may pass the optional `--reformat-xml`, in which case the XML will
 be pretty-formatted for easier human readability.
-
-
-Changes
--------
-
-For the list of changes, see `CHANGES in the repository
-<http://bitbucket.org/yougov/openpack/src/tip/CHANGES>`_.
