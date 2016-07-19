@@ -129,10 +129,10 @@ def find_file(path):
 
 	Assuming /foo.zipx exists as a file,
 
-	>>> find_file('/foo.zipx/dir/part') # !doctest.SKIP
+	>>> find_file('/foo.zipx/dir/part') # doctest: +SKIP
 	('/foo.zipx', '/dir/part')
 
-	>>> find_file('/foo.zipx') # !doctest.SKIP
+	>>> find_file('/foo.zipx') # doctest: +SKIP
 	('/foo.zipx', '')
 	"""
 	path_components = split_all(path)
