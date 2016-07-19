@@ -5,6 +5,9 @@ Moved hosting to Github.
 
 Dropped support for Python 2.6.
 
+Tagged builds are automatically released if tests pass on
+Python 3.5.
+
 1.1.3
 ~~~~~
 
