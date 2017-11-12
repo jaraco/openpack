@@ -18,12 +18,17 @@ def part_edit_cmd():
 	'Edit a part from an OOXML Package without unzipping it'
 	parser = argparse.ArgumentParser(description=inspect.getdoc(part_edit_cmd))
 	parser.add_argument(
-            'path',
-            help='Path to part (including path to zip file, i.e. ./file.zipx/part)')
+		'path',
+		help='Path to part (including path to zip file, i.e. ./file.zipx/part)',
+	)
 	parser.add_argument(
-            '--reformat-xml',
-            action='store_true',
-            help='run the content through an XML pretty-printer first for improved editability')
+		'--reformat-xml',
+		action='store_true',
+		help=(
+			'run the content through an XML pretty-printer '
+			'first for improved editability'
+		),
+	)
 	args = parser.parse_args()
 	part_edit(args.path, args.reformat_xml)
 
@@ -31,8 +36,13 @@ def part_edit_cmd():
 def pack_dir_cmd():
 	'List the contents of a subdirectory of a zipfile'
 	parser = argparse.ArgumentParser(description=inspect.getdoc(part_edit_cmd))
-	help = 'Path to list (including path to zip file, i.e. ./file.zipx or ./file.zipx/subdir)'
-	parser.add_argument('path', help=help)
+	parser.add_argument(
+		'path',
+		help=(
+			'Path to list (including path to zip file, '
+			'i.e. ./file.zipx or ./file.zipx/subdir)'
+		),
+	)
 	args = parser.parse_args()
 	for item, is_file in sorted(list_contents(args.path)):
 		prefix = 'd ' if not is_file else '  '
@@ -84,8 +94,10 @@ class EditableFile(object):
 		platforms.
 		"""
 		default_editor = ['edit', 'notepad'][sys.platform.startswith('win32')]
-		return os.environ.get('XML_EDITOR',
-                        os.environ.get('EDITOR', default_editor))
+		return os.environ.get(
+			'XML_EDITOR',
+			os.environ.get('EDITOR', default_editor),
+		)
 
 
 def part_edit(path, reformat_xml):
