@@ -1,3 +1,8 @@
+2.1.1
+~~~~~
+
+Fixed module runner invocations.
+
 2.1
 ~~~
 
