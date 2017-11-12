@@ -10,21 +10,21 @@
    :target: http://openpack.readthedocs.io/en/latest/?badge=latest
 
 Status
-------
+======
 
 ``openpack`` provides base functionality for working with the `Open
 Office XML (OOXML) <http://en.wikipedia.org/wiki/Office_Open_XML>`_
 format in Python.
 
 Introduction
-------------
+============
 
 Openpack is a base library for OpenXML documents. It's used by the `paradocx
 <http://bitbucket.org/yougov/paradocx>`_ and `Xlsxcessive
 <https://bitbucket.org/dowski/xlsxcessive>`_.
 
 Utilities
----------
+=========
 
 Openpack includes two utilities for working with OpenXML documents from the
 command-line, `part-edit` and `zip-listdir`.
@@ -33,7 +33,7 @@ These commands are additionally exposed as modules and may be invoked
 using ``python -m``, e.g. ``python -m openpack.part-edit``.
 
 zip-listdir
-~~~~~~~~~~~
+-----------
 
 `zip-listdir` isn't specific to OpenXML, and will work on any zip file.
 However, since OpenXML documents are themselves zip files, it's useful to have
@@ -52,7 +52,7 @@ sub-directories as well::
       document.xml
 
 part-edit
-~~~~~~~~~
+---------
 
 While `zip-listdir` enables inspecting the structure of the zip content of
 an OpenXML document, `part-edit` facilitates editing the various parts of

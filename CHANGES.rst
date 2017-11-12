@@ -1,10 +1,10 @@
 2.1.1
-~~~~~
+=====
 
 Fixed module runner invocations.
 
 2.1
-~~~
+===
 
 Refreshed project metadata.
 
@@ -15,7 +15,7 @@ now invoke ``part-edit`` or ``zip-listdir`` thus:
     $ python -m openpack.zip-listdir
 
 2.0
-~~~
+===
 
 Moved hosting to Github.
 
@@ -25,24 +25,24 @@ Tagged builds are automatically released if tests pass on
 Python 3.5.
 
 1.1.3
-~~~~~
+=====
 
 Issue #4: Fix issue with case sensitivity in ContentTypes.items.
 
 1.1
-~~~
+===
 
 Python 3 support.
 
 1.0
-~~~
+===
 
 As YouGov is adopting many of the principles of semver, and openpack is
 stable for many months, we're declaring it suitable for a 1.0 release.
 This release is functionally identical to 0.4.1.
 
 0.4
-~~~
+===
 
 In 0.4, many of the interfaces changed to better suit testing and other
 applications of the package. Here are some of the most prominent changes
