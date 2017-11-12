@@ -29,6 +29,9 @@ Utilities
 Openpack includes two utilities for working with OpenXML documents from the
 command-line, `part-edit` and `zip-listdir`.
 
+These commands are additionally exposed as modules and may be invoked
+using ``python -m``, e.g. ``python -m openpack.part-edit``.
+
 zip-listdir
 ~~~~~~~~~~~
 

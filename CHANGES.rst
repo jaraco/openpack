@@ -1,3 +1,14 @@
+2.1
+~~~
+
+Refreshed project metadata.
+
+Added module runners for command-line utilities. One may
+now invoke ``part-edit`` or ``zip-listdir`` thus:
+
+    $ python -m openpack.part-edit
+    $ python -m openpack.zip-listdir
+
 2.0
 ~~~
 
