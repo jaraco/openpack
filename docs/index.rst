@@ -1,5 +1,5 @@
-Welcome to skeleton documentation!
-========================================
+Welcome to openpack documentation!
+==================================
 
 .. toctree::
    :maxdepth: 1
@@ -7,7 +7,27 @@ Welcome to skeleton documentation!
    history
 
 
-.. automodule:: skeleton
+.. automodule:: openpack
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: openpack.basepack
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: openpack.editor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: openpack.officepack
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: openpack.zippack
     :members:
     :undoc-members:
     :show-inheritance:

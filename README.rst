@@ -1,17 +1,20 @@
-Openpack
-==============
+.. image:: https://img.shields.io/pypi/v/openpack.svg
+   :target: https://pypi.org/project/openpack
 
-.. contents::
+.. image:: https://img.shields.io/pypi/pyversions/openpack.svg
 
-Status and License
-------------------
+.. image:: https://img.shields.io/travis/yougov/openpack/master.svg
+   :target: http://travis-ci.org/yougov/openpack
+
+.. image:: https://readthedocs.org/projects/openpack/badge/?version=latest
+   :target: http://openpack.readthedocs.io/en/latest/?badge=latest
+
+Status
+------
 
 ``openpack`` provides base functionality for working with the `Open
 Office XML (OOXML) <http://en.wikipedia.org/wiki/Office_Open_XML>`_
 format in Python.
-
-``openpack`` is Copyright (c) 2010 by YouGov Plc. and released
-under the OSI MIT License.
 
 Introduction
 ------------

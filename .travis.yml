@@ -1,21 +1,32 @@
+dist: trusty
 sudo: false
 language: python
-python:
-- 2.7
-- 3.5
-script:
-- pip install -U pytest
-- python setup.py test
-branches:
-  except:
-  - skeleton
-deploy:
-  provider: pypi
-  on:
-    tags: true
-    all_branches: true
-    python: 3.5
-  user: jaraco
-  distributions: release
-  password:
-    secure: j+5GCEi0HWsSlfqdQCpzCe3nFIGp63en9dbwaBP8Eb1raH3zoX2D13vmnnBQbVL5moNEPgNVz41CqJw2lvTuhJ19zpAMzSiYOMdArQv/4CdI5SqN6jfoZFw8YpswCKGpMeAfnQp+7i1DgUjUxuuxalJk4NYbJKiwacf+Pz3Ng/hKjtWXmQMfxwC3vTnjnmbULmS+3dTC+r1naJ+CvXfBkki93TW3D6qbO01qAkjMEPH6nSyeQEhAMass6xTnO1BJoi3oSrBJKZ12W8hVc8JvFygUglvuh08j4Vs0bIPSxUHde7++oYRb/bPyOqs+IB1pe4unqf0uyMHDL0DNjHp2GPTGpAZxEQhbLaJeJglIC/8ZoGBg2/xbJm3+zLSoKvNR2mZCMb8HN9VmDX3yvBg3ZGSglehJWOKGoN2AvLPybJY3M9MyzJvz8vPbwKzyyiqOQxxUhjkZ1O9k9Z/NkCbljjN/qB1ZSTht2pyb5tRcfPxQDRs/BH6dOpEO3+iKNVM5i0DvxO5pnkyT8TaMLBnMIbZNKJfgy/YV9+Zxu/1BJNU1qZpB9gEwNvE0tYsRXoExDgfVwEk0M2advdxMUzSh61qJSBgQTlbj+orqftrLcVZedDMX32BSOUkM0rsk3GK/Fg36jFyEZRkBEn1kwvX0N3sPdusbYHbZjvuUGPWZuWo=
+
+jobs:
+  fast_finish: true
+  include:
+  - python: 2.7
+  - python: &latest_py3 3.6
+  - stage: deploy
+    if: tag IS present
+    python: *latest_py3
+    install: skip
+    script: skip
+    deploy:
+      provider: pypi
+      on:
+        tags: true
+        all_branches: true
+      user: jaraco
+      password:
+        secure: j+5GCEi0HWsSlfqdQCpzCe3nFIGp63en9dbwaBP8Eb1raH3zoX2D13vmnnBQbVL5moNEPgNVz41CqJw2lvTuhJ19zpAMzSiYOMdArQv/4CdI5SqN6jfoZFw8YpswCKGpMeAfnQp+7i1DgUjUxuuxalJk4NYbJKiwacf+Pz3Ng/hKjtWXmQMfxwC3vTnjnmbULmS+3dTC+r1naJ+CvXfBkki93TW3D6qbO01qAkjMEPH6nSyeQEhAMass6xTnO1BJoi3oSrBJKZ12W8hVc8JvFygUglvuh08j4Vs0bIPSxUHde7++oYRb/bPyOqs+IB1pe4unqf0uyMHDL0DNjHp2GPTGpAZxEQhbLaJeJglIC/8ZoGBg2/xbJm3+zLSoKvNR2mZCMb8HN9VmDX3yvBg3ZGSglehJWOKGoN2AvLPybJY3M9MyzJvz8vPbwKzyyiqOQxxUhjkZ1O9k9Z/NkCbljjN/qB1ZSTht2pyb5tRcfPxQDRs/BH6dOpEO3+iKNVM5i0DvxO5pnkyT8TaMLBnMIbZNKJfgy/YV9+Zxu/1BJNU1qZpB9gEwNvE0tYsRXoExDgfVwEk0M2advdxMUzSh61qJSBgQTlbj+orqftrLcVZedDMX32BSOUkM0rsk3GK/Fg36jFyEZRkBEn1kwvX0N3sPdusbYHbZjvuUGPWZuWo=
+      distributions: dists
+      skip_cleanup: true
+      skip_upload_docs: true
+
+cache: pip
+
+install:
+- pip install tox
+
+script: tox
