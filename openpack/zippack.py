@@ -8,12 +8,14 @@ import six
 
 from .basepack import Package, Part, Relationships
 
+
 def to_zip_name(name):
 	"""
 	Packages store items with names prefixed with slashes, but zip files
 	prefer them without. This method strips the leading slash.
 	"""
 	return name.lstrip('/')
+
 
 class ZipPackage(Package):
 	@classmethod
@@ -33,6 +35,7 @@ class ZipPackage(Package):
 		self._load_content_types(zf.read('[Content_Types].xml'))
 		rels_path = posixpath.join('_rels', '.rels')
 		self._load_rels(zf.read(rels_path))
+
 		def ropen(item):
 			"read item and recursively open its children"
 			if isinstance(item, Relationships):
@@ -50,7 +53,8 @@ class ZipPackage(Package):
 				target_path = to_zip_name(pname)
 				data = b"".join(self._get_matching_segments(zf, target_path))
 				new_part = self._load_part(rel.type, pname, data)
-				if new_part: ropen(new_part)
+				if new_part:
+					ropen(new_part)
 		ropen(self)
 		zf.close()
 
@@ -66,7 +70,10 @@ class ZipPackage(Package):
 			self.filename = target
 			target = open(target, 'wb')
 		if target is None:
-			msg = "Target filename required if %s was not opened from a file" % self.__class__.__name__
+			msg = (
+				"Target filename required if %s was not opened from a file"
+				% self.__class__.__name__
+			)
 			raise ValueError(msg)
 		self._store(target)
 
@@ -103,17 +110,19 @@ class ZipPackage(Package):
 			if n.startswith(name):
 				yield zf.read(n)
 
+
 class _ZipPackageZipFile(ZipFile):
 	"""
 	A wrapper around the zipfile to capture some of the common
 	usage of a ZipFile for ZipPackages.
 	"""
+
 	def __init__(self, *args, **kwargs):
 		ZipFile.__init__(self, *args, **kwargs)
 		# each piece of content will be created with the same date_time
 		# attribute (set to now)
 		now = time.localtime(time.time())
-		self.zip_info_factory = functools.partial(ZipInfo, date_time = now)
+		self.zip_info_factory = functools.partial(ZipInfo, date_time=now)
 
 	def write_part(self, name, content):
 		USER_READ_WRITE = 25165824
@@ -124,6 +133,7 @@ class _ZipPackageZipFile(ZipFile):
 		info.external_attr = USER_READ_WRITE
 		info.compress_type = ZIP_DEFLATED
 		self.writestr(info, content)
+
 
 if __name__ == '__main__':
 	zp = ZipPackage.from_file('../data/whatever.docx')

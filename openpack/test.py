@@ -2,6 +2,7 @@ import py.test
 
 from openpack.basepack import Package, Part
 
+
 class TestParts(object):
 	def setup_class(cls):
 		cls.package = Package()
@@ -11,4 +12,3 @@ class TestParts(object):
 
 	def test_bad_names(self):
 		py.test.raises(ValueError, Part, self.package, 'something', 'text/html')
-
