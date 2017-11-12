@@ -12,8 +12,9 @@ from openpack.zippack import ZipPackage
 
 from common import SamplePart
 
-# a few factories for the tests
-def pytest_funcarg__writable_filename(request):
+
+@py.test.fixture
+def writable_filename(request):
 	"""
 	Whenever a function needs a 'writable_filename', create one, but
 	be sure it's cleaned up afterward.
@@ -27,10 +28,14 @@ def pytest_funcarg__writable_filename(request):
 	request.addfinalizer(remove_if_exists)
 	return name
 
-def pytest_funcarg__zippack_sample(request):
+
+@py.test.fixture
+def zippack_sample(request):
 	return pkg_resources.resource_string(__name__, 'sample.zipx')
 
-def pytest_funcarg__zippack_sample_filename(request):
+
+@py.test.fixture
+def zippack_sample_filename(request):
 	return pkg_resources.resource_filename(__name__, 'sample.zipx')
 
 def test_create():

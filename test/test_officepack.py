@@ -4,7 +4,9 @@ import py.test
 
 from openpack.officepack import OfficePackage
 
-def pytest_funcarg__officepack_sample(request):
+
+@py.test.fixture
+def officepack_sample(request):
 	return pkg_resources.resource_stream(__name__, 'empty.docx')
 
 def test_open(officepack_sample):
