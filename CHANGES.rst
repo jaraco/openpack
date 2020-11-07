@@ -1,3 +1,10 @@
+v2.2.0
+======
+
+Require Python 3.6 or later. Refreshed package metadata.
+
+Fixed DeprecationWarning in usage of ``collections.abc``.
+
 2.1.1
 =====
 
