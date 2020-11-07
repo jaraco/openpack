@@ -12,7 +12,6 @@ from typing import Optional, ClassVar, Type
 
 from jaraco.collections import FoldedCaseKeyedDict
 
-import six
 from lxml.etree import Element, fromstring, tostring
 from lxml.builder import ElementMaker as _ElementMaker
 
@@ -229,8 +228,7 @@ class RelationshipTypeHandler(type):
         return cls
 
 
-@six.add_metaclass(RelationshipTypeHandler)
-class Part(Relational):
+class Part(Relational, metaclass=RelationshipTypeHandler):
     """
     Parts are the building blocks of OOXML files.
 
@@ -284,7 +282,7 @@ class Part(Relational):
         data = self.data
         if isinstance(data, ElementClass):
             data = tostring(data, encoding='utf-8', pretty_print=True)
-        if isinstance(data, six.text_type):
+        if isinstance(data, str):
             return data.encode('utf-8')
         return data
 
@@ -320,7 +318,7 @@ class Relationship(object):
 
     @validator
     def _validate_target(self, target):
-        assert isinstance(target, six.string_types), "target must be a part name"
+        assert isinstance(target, str), "target must be a part name"
         return target
 
     @validator

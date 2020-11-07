@@ -5,8 +5,6 @@ import tempfile
 import pkg_resources
 import io
 
-import six
-
 import py.test
 
 from openpack.zippack import ZipPackage
@@ -119,7 +117,7 @@ def test_create_and_open(writable_filename):
     part = pack['/test/part.xml']
     assert part.data == '<test>hi there</test>'.encode('ascii')
     rendered_children = io.StringIO()
-    out = six.text_type(pack.relationships.children)
+    out = str(pack.relationships.children)
     print(out, file=rendered_children)
     relations = pack.related('http://polimetrix.com/relationships/test')
     assert len(relations) == 1

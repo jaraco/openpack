@@ -4,8 +4,6 @@ import functools
 import io
 from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
 
-import six
-
 from .basepack import Package, Part, Relationships
 
 
@@ -67,7 +65,7 @@ class ZipPackage(Package):
         an existing file), it will be used.
         """
         target = target or getattr(self, 'filename', None)
-        if isinstance(target, six.string_types):
+        if isinstance(target, str):
             self.filename = target
             target = open(target, 'wb')
         if target is None:
