@@ -8,7 +8,7 @@ import logging
 import collections.abc
 import codecs
 from collections import defaultdict
-from typing import Optional
+from typing import Optional, ClassVar, Type
 
 from jaraco.collections import FoldedCaseKeyedDict
 
@@ -498,6 +498,9 @@ class ContentType(object):
      application/xml, and a key which refers to the content type.
     """
 
+    Default: ClassVar[Type['ContentType']]
+    Override: ClassVar[Type['ContentType']]
+
     def __init__(self, name, key):
         self.name = name
         self.key = key
@@ -550,7 +553,7 @@ class Default(ContentType):
     key_name = 'Extension'
 
 
-ContentType.Default = Default  # type: ignore
+ContentType.Default = Default
 del Default
 
 
@@ -560,7 +563,7 @@ class Override(ContentType):
     key_name = 'PartName'
 
 
-ContentType.Override = Override  # type: ignore
+ContentType.Override = Override
 del Override
 
 # Construct E, a convient namespace for making elements in the OOXML
