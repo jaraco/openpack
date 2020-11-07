@@ -50,7 +50,7 @@ def pack_dir_cmd():
         print(msg)
 
 
-class EditableFile(object):
+class EditableFile:
     def __init__(self, data=None):
         self.data = data
 

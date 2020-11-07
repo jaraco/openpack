@@ -3,7 +3,7 @@ import py.test
 from openpack.basepack import Package, Part
 
 
-class TestParts(object):
+class TestParts:
     def setup_class(cls):
         cls.package = Package()
 

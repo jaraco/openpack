@@ -32,7 +32,7 @@ ooxml_namespaces = dict(
 )
 
 
-class Relational(object):
+class Relational:
     "A mixin class for packages and parts; both support relationships."
 
     def relate(self, part, id=None):
@@ -189,7 +189,7 @@ class Package(collections.abc.MutableMapping, Relational):
         return next(self.get_parts_by_class(CoreProperties))
 
 
-class DefaultNamed(object):
+class DefaultNamed:
     """
     Mix-in for Parts that have a default name. Subclasses should include
     a 'default_name' attribute, which will be used during construction
@@ -290,7 +290,7 @@ class Part(Relational, metaclass=RelationshipTypeHandler):
         self.data = data
 
 
-class Relationship(object):
+class Relationship:
     """Represents an OPC relationship between a Package/Part and another Part.
 
     source : a Package or Part instance
@@ -490,7 +490,7 @@ class ContentTypes(set):
         return self._item_map(ContentType.Override)
 
 
-class ContentType(object):
+class ContentType:
     """
     An abstract content type.
     Each content type has a name, which is a mime-type like

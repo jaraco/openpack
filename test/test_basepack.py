@@ -14,7 +14,7 @@ from openpack.basepack import (
 )
 
 
-class TestBasicPart(object):
+class TestBasicPart:
     good_names = '/abc', '/foo/bar', '/foo-1/bar.xml'
     invalid_names = 'abc', '/abc/', '/foo/bar.', '/bar/./abc.xml'
 
@@ -43,7 +43,7 @@ class TestBasicPart(object):
             part.dump()
 
 
-class TestBasicPackage(object):
+class TestBasicPackage:
     def test_create(self):
         self.pack = Package()
 
