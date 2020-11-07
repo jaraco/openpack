@@ -1,6 +1,6 @@
 import os
 import tempfile
-import pkg_resources
+import pathlib
 import io
 
 import pytest
@@ -28,14 +28,17 @@ def writable_filename(request):
     return name
 
 
+get_file = pathlib.Path(__file__).parent.joinpath
+
+
 @pytest.fixture
 def zippack_sample(request):
-    return pkg_resources.resource_string(__name__, 'sample.zipx')
+    return get_file('sample.zipx').read_bytes()
 
 
 @pytest.fixture
 def zippack_sample_filename(request):
-    return pkg_resources.resource_filename(__name__, 'sample.zipx')
+    return str(get_file('sample.zipx'))
 
 
 def test_create():

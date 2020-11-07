@@ -1,4 +1,4 @@
-import pkg_resources
+import pathlib
 
 import pytest
 
@@ -7,7 +7,7 @@ from openpack.officepack import OfficePackage
 
 @pytest.fixture
 def officepack_sample(request):
-    return pkg_resources.resource_stream(__name__, 'empty.docx')
+    return pathlib.Path(__file__).parent.joinpath('empty.docx').open('rb')
 
 
 def test_open(officepack_sample):
