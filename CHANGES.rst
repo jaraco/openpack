@@ -1,3 +1,8 @@
+v2.2.2
+======
+
+Declare type for ``Part.encoding``.
+
 v2.2.1
 ======
 

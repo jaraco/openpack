@@ -242,6 +242,7 @@ class Part(Relational):
 
     content_type: Optional[str] = None
     rel_type: Optional[str] = None
+    encoding: str
 
     def __init__(self, package, name, **kwargs):
         # map(functools.partial(setattr, self), *kwargs.items())
