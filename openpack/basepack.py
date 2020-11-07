@@ -8,6 +8,8 @@ import logging
 import collections
 import codecs
 from collections import defaultdict
+from typing import Optional
+
 from jaraco.collections import FoldedCaseKeyedDict
 
 import six
@@ -238,8 +240,8 @@ class Part(Relational):
     part that you are implementing for the proper values for those attributes.
     """
 
-    content_type = None
-    rel_type = None
+    content_type: Optional[str] = None
+    rel_type: Optional[str] = None
 
     def __init__(self, package, name, **kwargs):
         # map(functools.partial(setattr, self), *kwargs.items())
@@ -359,14 +361,14 @@ class Relationships(Part):
         self.types = {}
         self.encoding = encoding or 'utf-8'
 
-    class relationships(object):
+    class _relationships:
         def __get__(self, instance, owner):
             raise ValueError("Relationship parts have no relationships.")
 
         def __set__(self, instance, value):
             return
 
-    relationships = relationships()
+    relationships = _relationships()
 
     def dump(self):
         rels = Element(
@@ -548,7 +550,7 @@ class Default(ContentType):
     key_name = 'Extension'
 
 
-ContentType.Default = Default
+ContentType.Default = Default  # type: ignore
 del Default
 
 
@@ -558,7 +560,7 @@ class Override(ContentType):
     key_name = 'PartName'
 
 
-ContentType.Override = Override
+ContentType.Override = Override  # type: ignore
 del Override
 
 # Construct E, a convient namespace for making elements in the OOXML
