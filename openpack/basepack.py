@@ -5,7 +5,7 @@ import os
 import posixpath
 import datetime
 import logging
-import collections
+import collections.abc
 import codecs
 from collections import defaultdict
 from typing import Optional
@@ -59,7 +59,7 @@ class Relational(object):
         self.relationships.load(source=self, data=source)
 
 
-class Package(collections.MutableMapping, Relational):
+class Package(collections.abc.MutableMapping, Relational):
     """A base class for an OPC package.
 
     Handles processing provided XML into the core components of a Package:
