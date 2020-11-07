@@ -1,3 +1,8 @@
+v2.2.1
+======
+
+Declare mypy typing support.
+
 v2.2.0
 ======
 
