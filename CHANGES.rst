@@ -1,3 +1,8 @@
+v2.2.3
+======
+
+Remove reliance on six and other Python 2 vestiges.
+
 v2.2.2
 ======
 
