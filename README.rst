@@ -14,11 +14,8 @@
    :target: https://github.com/psf/black
    :alt: Code style: Black
 
-.. image:: https://readthedocs.org/projects/openpack/badge/?version=latest
-   :target: http://openpack.readthedocs.io/en/latest/?badge=latest
-
-Status
-======
+.. .. image:: https://readthedocs.org/projects/skeleton/badge/?version=latest
+..   :target: http://skeleton.readthedocs.io/en/latest/?badge=latest
 
 ``openpack`` provides base functionality for working with the `Open
 Office XML (OOXML) <http://en.wikipedia.org/wiki/Office_Open_XML>`_
