@@ -11,7 +11,7 @@ def validator(f, etype=ValueError):
     return _validate
 
 
-_nstag = re.compile('(\{http://[^}]+\}){0,1}([a-zA-Z0-9_]+)')
+_nstag = re.compile(r'(\{http://[^}]+\}){0,1}([a-zA-Z0-9_]+)')
 
 
 def parse_tag(t):
