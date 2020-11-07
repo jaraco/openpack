@@ -127,9 +127,8 @@ def test_create_and_open(writable_filename):
 
 def test_nested_content_loads():
     """
-    Around 26:9448f50260f2, it was found that some content was not being
+    Replicate the error where some content was not being
     loaded from sample documents.
-    This test replicates that error.
     """
     package = ZipPackage()
     main = SamplePart(package, '/test/main.xml')
