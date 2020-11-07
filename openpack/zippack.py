@@ -1,3 +1,11 @@
+"""
+>>> zp = ZipPackage.from_file('data/whatever.docx')
+>>> print(zp)
+Package-...
+>>> zp.relationships
+Relationship(Package-..., 'whatever.xml', 'http://schemas.openxml...', ...)
+"""
+
 import time
 import posixpath
 import functools
@@ -132,9 +140,3 @@ class _ZipPackageZipFile(ZipFile):
         info.external_attr = USER_READ_WRITE
         info.compress_type = ZIP_DEFLATED
         self.writestr(info, content)
-
-
-if __name__ == '__main__':
-    zp = ZipPackage.from_file('../data/whatever.docx')
-    print(zp)
-    print(zp.relationships)
