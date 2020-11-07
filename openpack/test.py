@@ -11,4 +11,5 @@ class TestParts:
         self.part = Part(self.package, '/something.html', 'text/html')
 
     def test_bad_names(self):
-        pytest.raises(ValueError, Part, self.package, 'something', 'text/html')
+        with pytest.raises(ValueError):
+            Part(self.package, 'something', 'text/html')
