@@ -5,14 +5,14 @@ import tempfile
 import pkg_resources
 import io
 
-import py.test
+import pytest
 
 from openpack.zippack import ZipPackage
 
 from common import SamplePart
 
 
-@py.test.fixture
+@pytest.fixture
 def writable_filename(request):
     """
     Whenever a function needs a 'writable_filename', create one, but
@@ -30,12 +30,12 @@ def writable_filename(request):
     return name
 
 
-@py.test.fixture
+@pytest.fixture
 def zippack_sample(request):
     return pkg_resources.resource_string(__name__, 'sample.zipx')
 
 
-@py.test.fixture
+@pytest.fixture
 def zippack_sample_filename(request):
     return pkg_resources.resource_filename(__name__, 'sample.zipx')
 

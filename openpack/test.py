@@ -1,4 +1,4 @@
-import py.test
+import pytest
 
 from openpack.basepack import Package, Part
 
@@ -11,4 +11,4 @@ class TestParts:
         self.part = Part(self.package, '/something.html', 'text/html')
 
     def test_bad_names(self):
-        py.test.raises(ValueError, Part, self.package, 'something', 'text/html')
+        pytest.raises(ValueError, Part, self.package, 'something', 'text/html')

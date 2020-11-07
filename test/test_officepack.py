@@ -1,11 +1,11 @@
 import pkg_resources
 
-import py.test
+import pytest
 
 from openpack.officepack import OfficePackage
 
 
-@py.test.fixture
+@pytest.fixture
 def officepack_sample(request):
     return pkg_resources.resource_stream(__name__, 'empty.docx')
 
