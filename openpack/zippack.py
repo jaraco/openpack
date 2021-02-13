@@ -1,9 +1,9 @@
 """
->>> zp = ZipPackage.from_file('data/whatever.docx')
+>>> zp = ZipPackage.from_file('tests/empty.docx')
 >>> print(zp)
 Package-...
 >>> zp.relationships
-Relationship(Package-..., 'whatever.xml', 'http://schemas.openxml...', ...)
+Relationship(Package-..., 'word/document.xml', 'http://schemas.openxml...', ...)
 """
 
 import time
