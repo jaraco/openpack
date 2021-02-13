@@ -1,3 +1,8 @@
+v2.3.0
+======
+
+Refreshed packaging. Moved Github hosting.
+
 v2.2.3
 ======
 
