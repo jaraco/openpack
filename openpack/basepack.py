@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 ElementClass = Element('__').__class__
 
 ooxml_namespaces = dict(
-    cp='http://schemas.openxmlformats.org/package/2006/metadata/' 'core-properties',
+    cp='http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
     dc='http://purl.org/dc/elements/1.1/',
     dcterms='http://purl.org/dc/terms/',
     dcmitype='http://purl.org/dc/dcmitype/',
