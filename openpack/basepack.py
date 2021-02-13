@@ -577,6 +577,22 @@ E = type(
 )
 
 
+def DC(tag):
+    return '{%(dc)s}' % ooxml_namespaces + tag
+
+
+def CP(tag):
+    return '{%(cp)s}' % ooxml_namespaces + tag
+
+
+def DCTERMS(tag):
+    return '{%(dcterms)s}' % ooxml_namespaces + tag
+
+
+def identity(x):
+    return x
+
+
 class CoreProperties(Part):
     """
     Core properties on a package, has attributes like 'title', and 'subject'
@@ -603,18 +619,6 @@ class CoreProperties(Part):
 
     def load(self, data):
         xml = fromstring(data)
-
-        def DC(tag):
-            return '{%(dc)s}' % ooxml_namespaces + tag
-
-        def CP(tag):
-            return '{%(cp)s}' % ooxml_namespaces + tag
-
-        def DCTERMS(tag):
-            return '{%(dcterms)s}' % ooxml_namespaces + tag
-
-        def identity(x):
-            return x
 
         def set_attr_if_tag(tag, attr=None, transform=identity):
             if attr is None:
