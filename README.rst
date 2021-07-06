@@ -15,7 +15,10 @@
    :alt: Code style: Black
 
 .. .. image:: https://readthedocs.org/projects/skeleton/badge/?version=latest
-..   :target: http://skeleton.readthedocs.io/en/latest/?badge=latest
+..    :target: https://skeleton.readthedocs.io/en/latest/?badge=latest
+
+.. image:: https://img.shields.io/badge/skeleton-2021-informational
+   :target: https://blog.jaraco.com/skeleton
 
 ``openpack`` provides base functionality for working with the `Open
 Office XML (OOXML) <https://en.wikipedia.org/wiki/Office_Open_XML>`_
