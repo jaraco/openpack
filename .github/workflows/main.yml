@@ -60,7 +60,9 @@ jobs:
         # lxml fails to build on Windows
         # https://bugs.launchpad.net/lxml/+bug/1977998
         - platform: windows-latest
-          python: ~3.11.0-0
+          python: "3.11"
+        # lxml fails to build on Python 3.12
+        - python: "3.12"
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
