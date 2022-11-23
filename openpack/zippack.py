@@ -107,6 +107,7 @@ class ZipPackage(Package):
                 # silently ignore any part that fails to generate any
                 #  content.
                 pass
+        zf.close()
 
     def _get_matching_segments(self, zf, name):
         """

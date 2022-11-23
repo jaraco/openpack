@@ -1,3 +1,9 @@
+v2.3.2
+======
+
+#1: Explicitly close the zipfile when serializing. Fixes failures
+on PyPy.
+
 v2.3.1
 ======
 
