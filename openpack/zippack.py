@@ -10,10 +10,7 @@ import time
 import posixpath
 import functools
 import io
-import contextlib
 from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
-
-import jaraco.context
 
 from .basepack import Package, Part, Relationships
 
@@ -85,11 +82,9 @@ class ZipPackage(Package):
             raise ValueError(msg)
         if isinstance(target, str):
             self.filename = target
-            target = open(target, 'wb')
-            context = functools.partial(contextlib.closing, target)
+            with open(target, 'wb') as stream:
+                self._store(stream)
         else:
-            context = jaraco.context.null
-        with context():
             self._store(target)
 
     def as_stream(self):
