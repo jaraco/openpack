@@ -1,3 +1,8 @@
+v2.3.3
+======
+
+Refreshed packaging and fixed ResourceWarnings.
+
 v2.3.2
 ======
 
