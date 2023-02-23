@@ -350,7 +350,7 @@ class Relationships(Part):
     def __init__(self, package, source, encoding=None):
         """
         @param source package or part where from which the relationship is
-               derived
+        derived
         @ptype source Package or Part
         """
         name = self._name_from_source(source)
@@ -388,7 +388,7 @@ class Relationships(Part):
     def load(self, source, data):
         """
         @param source The source Part for each relationship in this
-                      collection
+        collection
         @ptype source Part
         @param data Relationship XML from a previous dump operation
         @ptype data string
@@ -493,8 +493,9 @@ class ContentTypes(set):
 class ContentType:
     """
     An abstract content type.
+
     Each content type has a name, which is a mime-type like
-     application/xml, and a key which refers to the content type.
+    application/xml, and a key which refers to the content type.
     """
 
     Default: ClassVar[Type['ContentType']]
