@@ -10,7 +10,10 @@ import time
 import posixpath
 import functools
 import io
+import contextlib
 from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
+
+import jaraco.context
 
 from .basepack import Package, Part, Relationships
 
@@ -26,7 +29,8 @@ def to_zip_name(name):
 class ZipPackage(Package):
     @classmethod
     def from_file(cls, filename):
-        package = cls.from_stream(open(filename, 'rb'))
+        with open(filename, 'rb') as stream:
+            package = cls.from_stream(stream)
         package.filename = filename
         return package
 
@@ -73,16 +77,20 @@ class ZipPackage(Package):
         an existing file), it will be used.
         """
         target = target or getattr(self, 'filename', None)
-        if isinstance(target, str):
-            self.filename = target
-            target = open(target, 'wb')
         if target is None:
             msg = (
                 "Target filename required if %s was not opened from a file"
                 % self.__class__.__name__
             )
             raise ValueError(msg)
-        self._store(target)
+        if isinstance(target, str):
+            self.filename = target
+            target = open(target, 'wb')
+            context = functools.partial(contextlib.closing, target)
+        else:
+            context = jaraco.context.null
+        with context():
+            self._store(target)
 
     def as_stream(self):
         """

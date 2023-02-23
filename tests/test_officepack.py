@@ -7,7 +7,8 @@ from openpack.officepack import OfficePackage
 
 @pytest.fixture
 def officepack_sample(request):
-    return pathlib.Path(__file__).parent.joinpath('empty.docx').open('rb')
+    with pathlib.Path(__file__).parent.joinpath('empty.docx').open('rb') as stream:
+        yield stream
 
 
 def test_open(officepack_sample):
