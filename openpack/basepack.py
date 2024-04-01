@@ -1,20 +1,19 @@
 """An Open Packaging Conventions implementation."""
 
-import os
-import posixpath
+import codecs
+import collections.abc
 import datetime
 import logging
-import collections.abc
-import codecs
+import os
+import posixpath
 from collections import defaultdict
-from typing import Optional, ClassVar, Type
+from typing import ClassVar, Optional, Type
 
 from jaraco.collections import FoldedCaseKeyedDict
-
-from lxml.etree import Element, fromstring, tostring
 from lxml.builder import ElementMaker as _ElementMaker
+from lxml.etree import Element, fromstring, tostring
 
-from .util import validator, parse_tag, get_ext
+from .util import get_ext, parse_tag, validator
 
 log = logging.getLogger(__name__)
 
@@ -125,11 +124,10 @@ class Package(collections.abc.MutableMapping, Relational):
         # recognize a part with a part name derived from another part name by
         # appending segments to it
         for cname in self:
-            assert not cname.startswith(name), 'The name %s is a derivative of %s' % (
-                name,
-                cname,
-            )
-        assert name == part.name, "%s != %s" % (name, part.name)
+            assert not cname.startswith(
+                name
+            ), f'The name {name} is a derivative of {cname}'
+        assert name == part.name, f"{name} != {part.name}"
         return part
 
     def save(self):
@@ -154,7 +152,7 @@ class Package(collections.abc.MutableMapping, Relational):
         Load a part into this package based on its relationship type
         """
         if self.content_types.find_for(name) is None:
-            log.warning('no content type found for part %(name)s' % vars())
+            log.warning('no content type found for part {name}'.format(**vars()))
             return
         cls = Part.classes_by_rel_type[rel_type]
         part = cls(self, name)
@@ -197,7 +195,7 @@ class DefaultNamed:
 
     def __init__(self, package, name=None, *args, **kwargs):
         name = name or self.default_name
-        super(DefaultNamed, self).__init__(package, name, *args, **kwargs)
+        super().__init__(package, name, *args, **kwargs)
 
 
 class RelationshipTypeHandler(type):
@@ -308,7 +306,7 @@ class Relationship:
 
     def __repr__(self):
         args = (self.source, self.target, self.type, self.id, self.mode)
-        return "Relationship(%r, %r, %r, %r, %r)" % args
+        return "Relationship({!r}, {!r}, {!r}, {!r}, {!r})".format(*args)
 
     @validator
     def _validate_source(self, source):
@@ -520,7 +518,7 @@ class ContentType:
         ns, class_name = parse_tag(element.tag)
         class_ = getattr(ContentType, class_name)
         if not class_:
-            msg = 'Invalid Types child element: %(class_name)s' % vars()
+            msg = 'Invalid Types child element: {class_name}'.format(**vars())
             raise ValueError(msg)
         # construct the subclass
         key = element.get(class_.key_name)
@@ -529,7 +527,7 @@ class ContentType:
 
     def __repr__(self):
         params = dict(class_name=self.__class__.__name__, **self.__dict__)
-        return "%(class_name)s(%(name)r, %(key)r)" % params
+        return "{class_name}({name!r}, {key!r})".format(**params)
 
     def __eq__(self, other):
         """
@@ -578,15 +576,15 @@ E = type(
 
 
 def DC(tag):
-    return '{%(dc)s}' % ooxml_namespaces + tag
+    return '{{{dc}}}'.format(**ooxml_namespaces) + tag
 
 
 def CP(tag):
-    return '{%(cp)s}' % ooxml_namespaces + tag
+    return '{{{cp}}}'.format(**ooxml_namespaces) + tag
 
 
 def DCTERMS(tag):
-    return '{%(dcterms)s}' % ooxml_namespaces + tag
+    return '{{{dcterms}}}'.format(**ooxml_namespaces) + tag
 
 
 def identity(x):
@@ -663,10 +661,10 @@ class CoreProperties(Part):
             self.modified = now
         created_str = self.created.strftime(self.dt_format)
         created = E.dcterms.created(created_str)
-        created.set('{%(xsi)s}type' % ooxml_namespaces, 'dcterms:W3CDTF')
+        created.set('{{{xsi}}}type'.format(**ooxml_namespaces), 'dcterms:W3CDTF')
         modified_str = self.modified.strftime(self.dt_format)
         modified = E.dcterms.modified(modified_str)
-        modified.set('{%(xsi)s}type' % ooxml_namespaces, 'dcterms:W3CDTF')
+        modified.set('{{{xsi}}}type'.format(**ooxml_namespaces), 'dcterms:W3CDTF')
         # create the element
         element = E.cp.coreProperties(
             E.dc.title(self.title),

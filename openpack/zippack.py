@@ -6,11 +6,11 @@ Package-...
 Relationship(Package-..., 'word/document.xml', 'http://schemas.openxml...', ...)
 """
 
-import time
-import posixpath
 import functools
 import io
-from zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
+import posixpath
+import time
+from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 from .basepack import Package, Part, Relationships
 

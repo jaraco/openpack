@@ -1,10 +1,10 @@
 import argparse
-import tempfile
-import os
-import sys
-import posixpath
 import inspect
+import os
+import posixpath
 import subprocess
+import sys
+import tempfile
 from zipfile import ZipFile
 
 from lxml import etree
@@ -74,7 +74,7 @@ class EditableFile:
             try:
                 res = subprocess.call(cmd)
             except Exception as e:
-                print("Error launching editor %(editor)s" % vars())
+                print("Error launching editor {editor}".format(**vars()))
                 print(e)
                 return
             if res != 0:

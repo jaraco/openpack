@@ -1,7 +1,7 @@
-import os
-import tempfile
-import pathlib
 import io
+import os
+import pathlib
+import tempfile
 
 import pytest
 

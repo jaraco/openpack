@@ -2,16 +2,17 @@ import re
 
 import pytest
 
-from .common import SamplePart
 from openpack.basepack import (
-    Part,
-    Relationships,
-    Relationship,
-    Package,
     ContentType,
     ContentTypes,
     DefaultNamed,
+    Package,
+    Part,
+    Relationship,
+    Relationships,
 )
+
+from .common import SamplePart
 
 
 class TestBasicPart:
@@ -31,7 +32,7 @@ class TestBasicPart:
     def test_reset_part_name_to_invalid_name(self, name):
         part = SamplePart(None, '/foo')
         with pytest.raises(ValueError):
-            setattr(part, 'name', name)
+            part.name = name
 
     def test_part_rels(self):
         p = Part(None, '/word/document.xml')
