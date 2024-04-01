@@ -1,5 +1,4 @@
-"""An Open Packaging Conventions implementation.
-"""
+"""An Open Packaging Conventions implementation."""
 
 import os
 import posixpath
