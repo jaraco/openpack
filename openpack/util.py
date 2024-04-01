@@ -6,7 +6,7 @@ def validator(f, etype=ValueError):
         try:
             return f(*args, **params)
         except AssertionError as e:
-            raise etype(*e.args)
+            raise etype(*e.args) from e
 
     return _validate
 

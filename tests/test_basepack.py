@@ -40,7 +40,7 @@ class TestBasicPart:
 
     def test_cant_dump_part_without_data(self):
         part = Part(None, '/word/document.xml')
-        with pytest.raises(Exception):
+        with pytest.raises(AttributeError):
             part.dump()
 
 
