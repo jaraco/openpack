@@ -7,7 +7,7 @@ import pytest
 
 from openpack.zippack import ZipPackage
 
-from common import SamplePart
+from .common import SamplePart
 
 
 @pytest.fixture

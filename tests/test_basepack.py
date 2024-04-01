@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from common import SamplePart
+from .common import SamplePart
 from openpack.basepack import (
     Part,
     Relationships,
