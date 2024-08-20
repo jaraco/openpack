@@ -43,11 +43,11 @@ class Relational:
 
     def related(self, reltype):
         """Return a list of parts related to this one via reltype."""
-        parts = []
         package = getattr(self, 'package', None) or self
-        for rel in self.relationships.types.get(reltype, []):
-            parts.append(package[posixpath.join(self.base, rel.target)])
-        return parts
+        return [
+            package[posixpath.join(self.base, rel.target)]
+            for rel in self.relationships.types.get(reltype, [])
+        ]
 
     def _load_rels(self, source):
         """Load relationships from source XML."""
