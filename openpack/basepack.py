@@ -124,9 +124,9 @@ class Package(collections.abc.MutableMapping, Relational):
         # recognize a part with a part name derived from another part name by
         # appending segments to it
         for cname in self:
-            assert not cname.startswith(
-                name
-            ), f'The name {name} is a derivative of {cname}'
+            assert not cname.startswith(name), (
+                f'The name {name} is a derivative of {cname}'
+            )
         assert name == part.name, f"{name} != {part.name}"
         return part
 
