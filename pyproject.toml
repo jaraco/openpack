@@ -63,6 +63,7 @@ type = [
 	"pytest-mypy",
 
 	# local
+	"lxml-stubs",
 ]
 
 
@@ -72,7 +73,3 @@ zip-listdir = "openpack.editor:pack_dir_cmd"
 
 
 [tool.setuptools_scm]
-
-
-[tool.pytest-enabler.mypy]
-# Disabled due to jaraco/skeleton#143
