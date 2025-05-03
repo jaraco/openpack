@@ -1,3 +1,9 @@
+v2.4.2
+======
+
+No significant changes.
+
+
 v2.4.1
 ======
 
