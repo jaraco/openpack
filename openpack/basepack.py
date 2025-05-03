@@ -1,5 +1,7 @@
 """An Open Packaging Conventions implementation."""
 
+from __future__ import annotations
+
 import codecs
 import collections.abc
 import datetime
@@ -7,7 +9,7 @@ import logging
 import os
 import posixpath
 from collections import defaultdict
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 from jaraco.collections import FoldedCaseKeyedDict
 from lxml.builder import ElementMaker as _ElementMaker
@@ -235,8 +237,8 @@ class Part(Relational, metaclass=RelationshipTypeHandler):
     part that you are implementing for the proper values for those attributes.
     """
 
-    content_type: Optional[str] = None
-    rel_type: Optional[str] = None
+    content_type: str | None = None
+    rel_type: str | None = None
     encoding: str
 
     def __init__(self, package, name, **kwargs):
@@ -495,8 +497,8 @@ class ContentType:
     application/xml, and a key which refers to the content type.
     """
 
-    Default: ClassVar[type['ContentType']]
-    Override: ClassVar[type['ContentType']]
+    Default: ClassVar[type[ContentType]]
+    Override: ClassVar[type[ContentType]]
 
     def __init__(self, name, key):
         self.name = name
