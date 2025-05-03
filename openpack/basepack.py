@@ -7,7 +7,7 @@ import logging
 import os
 import posixpath
 from collections import defaultdict
-from typing import ClassVar, Optional, Type
+from typing import ClassVar, Optional
 
 from jaraco.collections import FoldedCaseKeyedDict
 from lxml.builder import ElementMaker as _ElementMaker
@@ -495,8 +495,8 @@ class ContentType:
     application/xml, and a key which refers to the content type.
     """
 
-    Default: ClassVar[Type['ContentType']]
-    Override: ClassVar[Type['ContentType']]
+    Default: ClassVar[type['ContentType']]
+    Override: ClassVar[type['ContentType']]
 
     def __init__(self, name, key):
         self.name = name
