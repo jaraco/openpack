@@ -163,7 +163,7 @@ class Package(collections.abc.MutableMapping, Relational):
         return part
 
     def __repr__(self):
-        return "Package-%s" % id(self)
+        return f"Package-{id(self)}"
 
     def get_parts_by_class(self, cls):
         """
@@ -257,8 +257,8 @@ class Part(Relational, metaclass=RelationshipTypeHandler):
     @validator
     def _set_name(self, name):
         assert name
-        assert name[0] == '/', "%s does not start with a '/'" % name
-        assert name[-1] != '/', "%s ends with a '/'" % name
+        assert name[0] == '/', f"{name} does not start with a '/'"
+        assert name[-1] != '/', f"{name} ends with a '/'"
         # TODO: test for empty segments
         # TODO: test for only pchar characters (RFC 3986)
         for segment in name[1:].split('/'):
@@ -336,7 +336,7 @@ class Relationship:
 
     @staticmethod
     def _generate_id():
-        return "d%s" % codecs.encode(os.urandom(4), 'hex').decode()
+        return f"d{codecs.encode(os.urandom(4), 'hex').decode()}"
 
 
 class Relationships(Part):
@@ -423,7 +423,7 @@ class Relationships(Part):
         if isinstance(source, Package):
             return "/_rels/.rels"
         base, item = posixpath.split(source.name)
-        return posixpath.join(base, '_rels/%s.rels' % item)
+        return posixpath.join(base, f'_rels/{item}.rels')
 
 
 class ContentTypes(set):
@@ -457,7 +457,7 @@ class ContentTypes(set):
 
     @classmethod
     def from_element(cls, elem):
-        ns, tag = parse_tag(elem.tag)
+        _, tag = parse_tag(elem.tag)
         assert tag == 'Types'
         return cls(map(ContentType.from_element, elem))
 
@@ -517,7 +517,7 @@ class ContentType:
     def from_element(cls, element):
         "given an element, parse out the proper ContentType"
         # disambiguate the subclass
-        ns, class_name = parse_tag(element.tag)
+        _, class_name = parse_tag(element.tag)
         class_ = getattr(ContentType, class_name)
         if not class_:
             msg = 'Invalid Types child element: {class_name}'.format(**vars())
@@ -536,7 +536,7 @@ class ContentType:
         This object is equal to another if the other is of the
         same class and the name and key match.
         """
-        attrs = 'name key'.split()
+        attrs = 'name key'.split()  # noqa: SIM905
         all_attrs_eq = all(
             getattr(self, attr, None) == getattr(other, attr, None) for attr in attrs
         )
@@ -570,10 +570,10 @@ del Override
 E = type(
     'E',
     (object,),
-    dict(
-        (key, _ElementMaker(namespace=namespace, nsmap=ooxml_namespaces))
+    {
+        key: _ElementMaker(namespace=namespace, nsmap=ooxml_namespaces)
         for key, namespace in ooxml_namespaces.items()
-    ),
+    },
 )
 
 
@@ -622,7 +622,7 @@ class CoreProperties(Part):
 
         def set_attr_if_tag(tag, attr=None, transform=identity):
             if attr is None:
-                ns, attr = parse_tag(tag)
+                _, attr = parse_tag(tag)
             elem = xml.find(tag)
             if elem is not None and elem.text:
                 value = transform(elem.text)

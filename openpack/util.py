@@ -36,5 +36,5 @@ def get_ext(name):
     Note that for any non-empty string, the result will never be the
     same as the input. This is a useful property for basepack.
     """
-    other, sep, ext = name.partition('.')
+    _, _, ext = name.partition('.')
     return ext

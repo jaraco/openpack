@@ -50,7 +50,7 @@ class ZipPackage(Package):
                 return
             if isinstance(item, Part):
                 base, rname = posixpath.split(to_zip_name(item.name))
-                relname = posixpath.join(base, '_rels', '%s.rels' % rname)
+                relname = posixpath.join(base, '_rels', f'{rname}.rels')
                 if relname in zf.namelist():
                     item._load_rels(zf.read(relname))
             for rel in item.relationships:
@@ -77,8 +77,8 @@ class ZipPackage(Package):
         target = target or getattr(self, 'filename', None)
         if target is None:
             msg = (
-                "Target filename required if %s was not opened from a file"
-                % self.__class__.__name__
+                f"Target filename required if {self.__class__.__name__} "
+                "was not opened from a file"
             )
             raise ValueError(msg)
         if isinstance(target, str):

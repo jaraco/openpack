@@ -73,7 +73,7 @@ class EditableFile:
             cmd = [editor, self.name]
             try:
                 res = subprocess.call(cmd)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 report any failure to launch
                 print("Error launching editor {editor}".format(**vars()))
                 print(e)
                 return
