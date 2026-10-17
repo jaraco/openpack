@@ -6,6 +6,7 @@ Package-...
 Relationship(Package-..., 'word/document.xml', 'http://schemas.openxml...', ...)
 """
 
+import contextlib
 import functools
 import io
 import posixpath
@@ -104,12 +105,9 @@ class ZipPackage(Package):
             if name == '/_rels/.rels':
                 continue
             part = self[name]
-            try:
+            # silently ignore any part that fails to generate any content.
+            with contextlib.suppress(Exception):
                 zf.write_part(to_zip_name(name), part.dump())
-            except BaseException:
-                # silently ignore any part that fails to generate any
-                #  content.
-                pass
         zf.close()
 
     def _get_matching_segments(self, zf, name):

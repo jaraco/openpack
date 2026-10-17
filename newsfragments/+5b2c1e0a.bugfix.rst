@@ -1,0 +1,1 @@
+Stop swallowing KeyboardInterrupt and other BaseExceptions when storing a package's parts.
