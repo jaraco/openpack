@@ -2,6 +2,7 @@ import io
 import os
 import pathlib
 import tempfile
+import zipfile
 
 import pytest
 
@@ -150,3 +151,22 @@ def test_nested_content_loads():
     assert package['/test/main.xml']
     sub = package['/test/sub.xml']
     assert b'sub module' in sub.data
+
+
+class FailingPart(SamplePart):
+    def dump(self):
+        raise RuntimeError("no content")
+
+
+def test_store_skips_failing_part():
+    """
+    A part that fails to generate content is omitted from the package.
+    """
+    pack = ZipPackage()
+    part = FailingPart(pack, '/test/part.xml')
+    pack[part.name] = part
+    pack.content_types.add_override(part)
+    pack.relate(part)
+    names = zipfile.ZipFile(pack.as_stream()).namelist()
+    assert 'test/part.xml' not in names
+    assert '[Content_Types].xml' in names
